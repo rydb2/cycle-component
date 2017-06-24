@@ -1,0 +1,27 @@
+{
+  "name": "src",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {},
+  "author": "chenchao",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^1.6.11",
+    "marked": "^0.3.6"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.4",
+    "extract-text-webpack-plugin": "^2.1.2",
+    "file-loader": "^0.11.2",
+    "image-webpack-loader": "^3.3.1",
+    "postcss-cssnext": "^2.11.0",
+    "postcss-hexrgba": "^0.2.1",
+    "postcss-loader": "^2.0.6",
+    "style-loader": "^0.18.2",
+    "ts-loader": "^2.2.0",
+    "url-loader": "^0.5.9",
+    "webpack": "^3.0.0",
+    "webpack-manifest-plugin": "^1.1.0"
+  }
+}
