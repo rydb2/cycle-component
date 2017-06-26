@@ -1,3 +1,6 @@
 dev/
 node_modules/
 typings/
+src/*.js
+*.pyc
+build/

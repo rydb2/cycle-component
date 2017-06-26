@@ -5,16 +5,17 @@ var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
 var ManifestPlugin = require('webpack-manifest-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var mainCss = new ExtractTextPlugin('styles/main.css');
 
 // webpack.config.js
 module.exports = {
     devtool: 'cheap-module-eval-source-map',
-    context: path.resolve(__dirname, "../src/"),
+    target: 'electron-renderer',
     entry: {
         app: [
-            path.resolve(__dirname, '../src/Main.ts'),
+            path.resolve(__dirname, '../src/renderer/app.ts'),
         ]
     },
     output: {
@@ -135,13 +136,12 @@ module.exports = {
         ],
         extensions: ['.ts', '.tsx', '.js'],
         alias: {
-            reduxStore: path.resolve(__dirname, '../src/scripts/reduxStore'),
-            settings: path.resolve(__dirname, '../src/scripts/settings'),
-            utils: path.resolve(__dirname, '../src/scripts/utils'),
-            pages: path.resolve(__dirname, '../src/scripts/pages'),
-            containers: path.resolve(__dirname, '../src/scripts/containers'),
-            components: path.resolve(__dirname, '../src/scripts/components')
         }
+    },
+    devServer: {
+        contentBase: path.resolve(__dirname, '../dev/'),
+        compress: true,
+        port: 8888 
     },
     plugins: [
         // new CommonsChunkPlugin({
@@ -167,8 +167,9 @@ module.exports = {
             }
         }),
         mainCss,
-        new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'dev')
+        new HtmlWebpackPlugin({
+            filename: 'index.html',
+            template: path.resolve(__dirname, '../src/index.html')
         }),
     ]
 };
