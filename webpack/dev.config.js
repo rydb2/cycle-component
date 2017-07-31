@@ -6,6 +6,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
 var ManifestPlugin = require('webpack-manifest-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+const { TsConfigPathsPlugin } = require('awesome-typescript-loader');
 
 var mainCss = new ExtractTextPlugin('styles/main.css');
 
@@ -14,8 +15,11 @@ module.exports = {
     devtool: 'cheap-module-eval-source-map',
     target: 'electron-renderer',
     entry: {
+        // index: [
+        //     path.resolve(__dirname, '../dev/renderer/index.jsx'),
+        // ]
         app: [
-            path.resolve(__dirname, '../src/renderer/app.ts'),
+            path.resolve(__dirname, '../src/renderer/index.tsx')
         ]
     },
     output: {
@@ -25,11 +29,11 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /.*(\.js|\.tsx|.ts)$/,
+                test: /.*(\.js|\.tsx|\.ts|\.jsx)$/,
                 exclude: [
                     path.resolve(__dirname, '../node_modules/')
                 ],
-                use: 'ts-loader'
+                use: ['awesome-typescript-loader']
             },
             {
                 test: /\.css$/,
@@ -170,7 +174,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: path.resolve(__dirname, '../src/index.html')
-        }),
+        })
     ]
 };
 

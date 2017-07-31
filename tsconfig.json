@@ -1,18 +1,29 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "watch": true,
-        "target": "es5",
-        "noImplicitAny": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "sourceMap": false,
-        "jsx": "react",
-        "lib":[
-            "es2015",
-            "dom"
-        ]
-    },
-    "exclude": [
-        "node_modules"
+  "compilerOptions": {
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "declaration": true,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "module": "commonjs",
+    "target": "ES5",
+    "outDir": "dev/",
+    "jsx": "preserve",
+    "lib": [
+      "dom",
+      "es5",
+      "es2015"
     ]
+  },
+  "formatCodeOptions": {
+    "indentSize": 2,
+    "tabSize": 2
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "awesomeTypescriptLoaderOptions": {
+    "useBabel": true
+  }
 }

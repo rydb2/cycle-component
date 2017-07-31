@@ -1,23 +1,16 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Hello World!</title>
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-        We are using node <script>document.write(process.versions.node)</script>,
-        Chrome <script>document.write(process.versions.chrome)</script>,
-        and Electron <script>document.write(process.versions.electron)</script>.
 
-        <script>
-            document.write('\n')
-            document.write('\n')
-            document.write(JSON.stringify(process.env))
-        </script>
+<head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+</head>
 
-        <script>
-        </script>
-    </body>
+<body>
+    <h1>Hello World!</h1>
+    We are using node
+    <div id='main'></div>
+    <script src="../dev/scripts/app.js"></script>
+</body>
+
 </html>
-
