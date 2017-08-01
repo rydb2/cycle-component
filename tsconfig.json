@@ -25,5 +25,8 @@
   ],
   "awesomeTypescriptLoaderOptions": {
     "useBabel": true
-  }
+  },
+  "files": [
+      "./src/Main.ts"
+  ]
 }

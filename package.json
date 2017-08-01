@@ -4,7 +4,9 @@
   "description": "",
   "main": "dev/main.js",
   "scripts": {
-    "install-electron": "ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/ npm install electron --save"
+    "install-electron": "ELECTRON_MIRROR=http://npm.taobao.org/mirrors/electron/ yarn add electron",
+    "electron-dev": "./node_modules/.bin/cross-env NODE_ENV=development electron .",
+    "webpack-dev": "./node_modules/.bin/webpack-dev-server --config webpack/dev.config.js"
   },
   "author": "chenchao",
   "license": "ISC",
@@ -22,7 +24,8 @@
     "marked": "^0.3.6",
     "rxjs": "^5.4.2",
     "snabbdom-jsx": "^0.3.1",
-    "ts-loader": "^2.3.2"
+    "ts-loader": "^2.3.2",
+    "typescript": "^2.4.2"
   },
   "devDependencies": {
     "@types/node": "^8.0.17",
@@ -31,6 +34,7 @@
     "babel-core": "^6.25.0",
     "babel-loader": "^7.1.1",
     "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-preset-es2015": "^6.24.1",
     "css-loader": "^0.28.4",
     "extract-text-webpack-plugin": "^3.0.0",
     "file-loader": "^0.11.2",

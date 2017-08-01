@@ -4,3 +4,4 @@ typings/
 src/*.js
 *.pyc
 build/
+yarn-error.log
