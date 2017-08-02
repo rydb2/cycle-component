@@ -1,0 +1,69 @@
+import { Observable } from 'rxjs/Rx'
+import { run } from '@cycle/rxjs-run'
+import { makeDOMDriver, DOMSource, VNode } from '@cycle/dom'
+import { timeDriver, TimeSource } from '@cycle/time/rxjs'
+import * as marked from 'marked'
+const {html} = require('snabbdom-jsx')
+
+import Editor from './containers/Editor'
+import Button from './ui/Button'
+import Input from './ui/Input'
+import * as enums from './ui/enums'
+import * as styles from './app'
+
+type Sources = {
+  DOM: DOMSource;
+}
+
+type Sinks = {
+  DOM: Observable<JSX.Element>;
+}
+
+function main(sources: Sources): Sinks {
+
+  const editor = Editor({
+    DOM: sources.DOM.select('#editor'),
+    props$: Observable.of({
+      value: ''
+    })
+  });
+  // const button = Button({
+  //   DOM: sources.DOM,
+  //   props$: Rx.Observable.of({label: 'lala'})
+  // }, true);
+
+  // button.events.click.subscribe((e) => {
+  //   console.log(e)
+  // })
+
+  const input = Input({
+    DOM: sources.DOM,
+    props$: Observable.of({
+      value: 'defautl event',
+      placeholder: 'hahahh',
+      size: enums.SIZE.large
+    })
+  })
+
+  const vdom$ = Observable.combineLatest(editor.DOM, editor.value$, input)
+    .map(([editorTree, value, inputTree]) => {
+      const previewHtml = marked(value);
+      return (
+        <div className={styles.mainWrap}>
+          <div id="editor" className={styles.editor}>
+            {editorTree}
+          </div>
+          <div id="preview" className={styles.preview} innerHTML={previewHtml}></div>
+          {inputTree}
+        </div>
+      )
+    });
+  
+  return {
+    DOM: vdom$
+  };
+}
+
+run(main, {
+  DOM: makeDOMDriver('#main')
+});

@@ -13,13 +13,13 @@ var mainCss = new ExtractTextPlugin('styles/main.css');
 // webpack.config.js
 module.exports = {
     devtool: 'cheap-module-eval-source-map',
-    target: 'electron-renderer',
+    // target: 'electron-renderer',
     entry: {
         // index: [
         //     path.resolve(__dirname, '../dev/renderer/index.jsx'),
         // ]
         app: [
-            path.resolve(__dirname, '../src/renderer/index.tsx')
+            path.resolve(__dirname, '../src/renderer/app.tsx')
         ]
     },
     output: {
@@ -50,11 +50,18 @@ module.exports = {
                                 minimize: 1,
                                 modules: 1,
                                 importLoaders: 1,
-                                localIdentName: '[name]__[local]___[hash:base64:5]'
+                                camelCase: true,
+                                localIdentName: '[local]'
                             }
                         },
                         {
                             loader: 'postcss-loader'
+                        },
+                         {
+                            loader: 'typed-css-modules-loader',
+                            options: {
+                                camelCase: true
+                            }
                         }
                     ]
                 })

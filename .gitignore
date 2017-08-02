@@ -5,3 +5,4 @@ src/*.js
 *.pyc
 build/
 yarn-error.log
+*.d.ts

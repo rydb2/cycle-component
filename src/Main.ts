@@ -1,7 +1,7 @@
-const { app, BrowserWindow } = require('electron');
-
-const path = require('path')
-const url = require('url')
+import { app, BrowserWindow } from 'electron'
+import * as path from 'path'
+import * as url from 'url'
+import installExtension, { CYCLEJS_DEVTOOL } from 'electron-devtools-installer'
 
 let win: any = null;
 
@@ -24,9 +24,13 @@ function createWindow() {
 
     win.webContents.openDevTools()
 
-    // win.on('closed', () => {
-    //     win = null
-    // })
+    installExtension(CYCLEJS_DEVTOOL)
+        .then((name) => console.log(`Added Extension:  ${name}`))
+        .catch((err) => console.log('An error occurred: ', err));
+
+    win.on('closed', () => {
+        win = null
+    })
 }
 
 app.on('ready', createWindow)

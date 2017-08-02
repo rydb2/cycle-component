@@ -1,0 +1,11 @@
+.main-wrap {
+    display: flex;
+}
+
+.editor {
+    flex: 1;
+}
+
+.preview {
+    flex: 1;
+}
