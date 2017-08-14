@@ -10,8 +10,8 @@ import {
   InputDomComponentActions,
   InputDomComponentProps,
   DomComponentSources } from '../helpers/domInterfaces'
-import { clssNameWithSize } from '../helpers/tools'
-import './style.scss'
+import { classNameWithSize } from '../helpers/tools'
+import './style.less'
 import {JsxElement} from "typescript";
 
 /* sources */
@@ -52,7 +52,7 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<any> {
   const value$ = Observable.merge(initVal$, newVal$).shareReplay();
 
   return Observable.combineLatest(props$, value$).map(([props, value]) => {
-    const className = clssNameWithSize('cc-input', props.size);
+    const className = classNameWithSize('cc-input', props.size);
     const classes = classNames(className, classNames);
     const error = props.validate ? props.validate(value) : '';
     return {

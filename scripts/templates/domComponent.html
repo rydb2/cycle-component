@@ -11,7 +11,7 @@ import {
   DomComponentActions,
   DomComponentProps,
   DomComponentSources } from '../helpers/domInterfaces'
-import { clssNameWithSize } from '../helpers/tools'
+import { classNameWithSize } from '../helpers/tools'
 import './style.less'
 
 /* sources */
@@ -29,14 +29,18 @@ export interface Actions extends DomComponentActions {
 export interface Sinks extends DomComponentSinks {
 }
 
+/* model struct */
+export interface Model {
+}
+
 /* main */
 function intent(domSource: DOMSource) : Actions {
 }
 
-function model(props$: Observable<Props>, actions: Actions) : Observable<any> {
+function model(props$: Observable<Props>, actions: Actions) : Observable<Model> {
 }
 
-function view(state$: Observable<any>): Observable<JSX.Element> {
+function view(state$: Observable<Model>): Observable<JSX.Element> {
 }
 
 function main(sources: Sources): Sinks {

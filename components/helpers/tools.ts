@@ -1,4 +1,4 @@
-export function clssNameWithSize(className: string, size: string): string {
+export function classNameWithSize(className: string, size: string): string {
     switch (size) {
         case 'large':
             return className + '-lg';

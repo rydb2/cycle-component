@@ -6,30 +6,39 @@ import { JsxElement } from "typescript"
 const { html } = require('snabbdom-jsx');
 const classNames = require('classnames');
 
+import Icon, { Props as IconProps } from '../Icon/Icon'
 import {
   DomComponentSinks,
   DomComponentActions,
   DomComponentProps,
   DomComponentSources } from '../helpers/domInterfaces'
-import { clssNameWithSize } from '../helpers/tools'
+import { classNameWithSize } from '../helpers/tools'
 import './style.less'
 
 /* sources */
 export interface Props extends DomComponentProps {
   label: string;
   loading?: boolean;
+  icon?: string;
+  iconSize?: string;
 }
 
 export interface Sources extends DomComponentSources {
   props$: Observable<Props>;
 }
 
-
 /* sinks */
 export interface Actions extends DomComponentActions {
 }
 
 export interface Sinks extends DomComponentSinks {
+}
+
+/* model struct */
+export interface Model {
+  label: string;
+  loading?: boolean;
+  iconProps?: IconProps;
 }
 
 /* main */
@@ -40,19 +49,33 @@ function intent(domSource: DOMSource) : Actions {
   }
 }
 
-function model(props$: Observable<Props>, actions: Actions) : Observable<any> {
+function model(props$: Observable<Props>, actions: Actions) : Observable<Model> {
   return props$.map(props => {
     return {
       label: props.label,
-      loading: props.loading
+      loading: props.loading,
+      iconProps: {
+        name: props.icon,
+        size: props.iconSize
+      }
     }
   });
 }
 
-function view(state$: Observable<any>): Observable<JSX.Element> {
-  return state$.map(({ label, loading }) => {
+function view(sourceDOM: DOMSource, state$: Observable<Model>): Observable<JSX.Element> {
+  const iconDOM$ = state$.flatMap(({iconProps}) => {
+    return Icon({
+      DOM: sourceDOM.select('.icon'),
+      props$: Observable.of(iconProps)
+    }).DOM;
+  });
+
+  return Observable.combineLatest(state$, iconDOM$).map(([{ label, loading, iconProps }, iconTree]) => {
     return (
-      <button>{label}</button>
+      <button>
+        <i className="icon">{ iconTree }</i>
+        { label }
+      </button>
     )
   })
 }
@@ -60,7 +83,7 @@ function view(state$: Observable<any>): Observable<JSX.Element> {
 function main(sources: Sources): Sinks {
   const actions = intent(sources.DOM);
   const state$ = model(sources.props$, actions);
-  const vdom$ = view(state$);
+  const vdom$ = view(sources.DOM, state$);
 
   return {
     DOM: vdom$,

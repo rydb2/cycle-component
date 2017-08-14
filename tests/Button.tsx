@@ -6,6 +6,7 @@ import { timeDriver, TimeSource } from '@cycle/time/rxjs'
 const { html } = require('snabbdom-jsx');
 
 import { Button } from '../components'
+import '../components/Icon'
 
 type Sources = {
   DOM: DOMSource;
@@ -19,7 +20,8 @@ function main(sources: Sources): Sinks {
   const button = Button({
     DOM: sources.DOM,
     props$: Observable.of({
-      label: 'hahaha'
+      label: 'hahaha',
+      icon: 'face'
     })
   }, false);
 

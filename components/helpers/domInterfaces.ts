@@ -18,8 +18,8 @@ export interface DomComponentActions {
 }
 
 export interface InputDomComponentActions extends DomComponentActions {
-  blur?:  Observable<Event>;
-  input?:  Observable<Event>;
+  blur?: Observable<Event>;
+  input?: Observable<Event>;
 }
 
 /* sources */

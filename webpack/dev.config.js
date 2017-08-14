@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
 const mainCss = new ExtractTextPlugin('styles/main.css');
 
@@ -10,6 +11,7 @@ module.exports = (env) => {
   const fileName = env.file;
   return {
     devtool: 'cheap-module-eval-source-map',
+    target: 'web',
     entry: {
       [fileName]: [
         path.resolve(__dirname, '../tests/', fileName),
@@ -29,7 +31,7 @@ module.exports = (env) => {
           use: ['awesome-typescript-loader'],
         },
         {
-          test: /\.scss$/,
+          test: /\.less$/,
           exclude: [
             path.resolve(__dirname, '../node_modules/'),
             path.resolve(__dirname, '../src/styles/'),
@@ -53,47 +55,60 @@ module.exports = (env) => {
           }),
         },
         {
-          test: /.*(\.png|\.gif|\.svg)$/,
-          exclude: [
-            path.resolve(__dirname, '../src/scripts/vendor/wangEditor'),
-          ],
+          test: /\.svg$/,
+          exclude: [],
           use: [
             {
-              loader: 'url-loader',
-              query: {
-                hash: 'sha512',
-                digest: 'hex',
-                limit: 8000,
-                name: 'images/[hash:base64:5]__[name].[ext]',
-                publicPath: '//127.0.0.1:8888/',
-              },
-            },
-            {
-              loader: 'image-webpack-loader',
+              loader: 'svg-sprite-loader',
               options: {
-                mozjpeg: {
-                  quality: 65,
-                },
-                pngquant: {
-                  quality: '65-90',
-                  speed: 4,
-                },
-                svgo: {
-                  plugins: [
-                    {
-                      removeViewBox: false,
-                    },
-                    {
-                      removeEmptyAttrs: false,
-                    },
-                  ],
-                },
-              },
-            },
+                extract: true,
+                spriteFilename: 'icons-sprite.svg'
+                // runtimeGenerator: require.resolve('./extracting-runtime-generator.js')
+              }
+            }
+            // {
+            //   loader: 'file-loader',
+            //   query: {
+            //     name: 'svg/[name].[ext]',
+            //     // publicPath: '//127.0.0.1:8888/',
+            //   },
+            // },
+            // {
+            //   loader: 'url-loader',
+            //   query: {
+            //     hash: 'sha512',
+            //     // digest: 'hex',
+            //     limit: 100,
+            //     name: 'svg/[name].[ext]',
+            //     // publicPath: '//127.0.0.1:8888/',
+            //   },
+            // },
+            // {
+            //   loader: 'image-webpack-loader',
+            //   options: {
+            //     mozjpeg: {
+            //       quality: 65,
+            //     },
+            //     pngquant: {
+            //       quality: '65-90',
+            //       speed: 4,
+            //     },
+            //     svgo: {
+            //       plugins: [
+            //         {
+            //           removeViewBox: false,
+            //         },
+            //         {
+            //           removeEmptyAttrs: false,
+            //         },
+            //       ],
+            //     },
+            //   },
+            // },
           ],
         },
         {
-          test: /\.(ttf|eot|svg|woff|woff2)(\?[a-z0-9\-#]+)?$/,
+          test: /\.(ttf|eot|woff|woff2)(\?[a-z0-9\-#]+)?$/,
           use: [
             {
               loader: 'file-loader',
@@ -125,6 +140,7 @@ module.exports = (env) => {
         filename: 'index.html',
         template: path.resolve(__dirname, '../index.html'),
       }),
+      new SpriteLoaderPlugin(),
     ],
   }
 };
