@@ -1,0 +1,59 @@
+import { Observable } from 'rxjs'
+import isolateFn from '@cycle/isolate'
+import { DOMSource  } from '@cycle/dom/rxjs-typings'
+import { JsxElement } from "typescript"
+
+const { html } = require('snabbdom-jsx');
+const classNames = require('classnames');
+
+import {
+  InputDomComponentSinks,
+  InputDomActions,
+  InputDomComponentProps,
+  DomComponentSources } from '../helpers/domInterfaces'
+import { clssNameWithSize } from '../helpers/tools'
+import './style.scss'
+
+/* sources */
+export interface Props extends InputDomComponentProps {
+  placeholder?: string;
+  validate?: Function;
+}
+
+export interface Sources extends DomComponentSources {
+  props$: Observable<Props>;
+}
+
+/* sinks */
+export interface Actions extends InputDomActions {
+}
+
+export interface Sinks extends InputDomComponentSinks {
+}
+
+/* main */
+function intent(domSource: DOMSource) : Actions {
+}
+
+function model(props$: Observable<Props>, actions: Actions) : Observable<any> {
+}
+
+function view(state$: Observable<any>): Observable<JSX.Element> {
+}
+
+function main(sources: Sources): Sinks {
+  const actions = intent(sources.DOM);
+  const state$ = model(sources.props$, actions);
+  const vdom$ = view(state$);
+
+  return {
+    DOM: vdom$,
+    actions,
+    value: state$.map(state => state.value),
+  }
+}
+
+export default function isolate{{name}}(sources: Sources, isolate: boolean = true): Sinks {
+  return isolate ? isolateFn(main)(sources) : main(sources)
+}
+

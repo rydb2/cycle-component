@@ -6,3 +6,4 @@ src/*.js
 build/
 yarn-error.log
 *.d.ts
+.idea

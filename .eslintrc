@@ -6,5 +6,7 @@
             "jsx": true
         }
     },
+    "rules": {
+    },
     "extends": "airbnb"
 }

@@ -3,12 +3,9 @@ import { run } from '@cycle/rxjs-run'
 import { makeDOMDriver, VNode } from '@cycle/dom'
 import { DOMSource } from '@cycle/dom/rxjs-typings'
 import { timeDriver, TimeSource } from '@cycle/time/rxjs'
-import * as marked from 'marked'
-const { html } = require('snabbdom-jsx')
+const { html } = require('snabbdom-jsx');
 
-import Button from './ui/Button'
-import Input from './ui/Input'
-import * as enums from './ui/enums'
+import { Input } from '../components'
 
 type Sources = {
   DOM: DOMSource;
@@ -19,24 +16,14 @@ type Sinks = {
 }
 
 function main(sources: Sources): Sinks {
-
-  // const button = Button({
-  //   DOM: sources.DOM,
-  //   props$: Rx.Observable.of({label: 'lala'})
-  // }, true);
-
-  // button.events.click.subscribe((e) => {
-  //   console.log(e)
-  // })
-
   const input = Input({
     DOM: sources.DOM,
     props$: Observable.of({
       value: 'defautl event',
       placeholder: 'hahahh',
-      size: enums.SIZE.large
+      size: 'large'
     })
-  })
+  });
 
   const vdom$ = Observable.combineLatest(input.DOM, input.value)
     .map(([inputTree, value]) => {
@@ -47,6 +34,12 @@ function main(sources: Sources): Sinks {
         </div>
       )
     });
+
+  Object.keys(input.actions).forEach(eName => {
+      input.actions[eName].subscribe(e => {
+        console.log(eName);
+      })
+  });
 
   return {
     DOM: vdom$
