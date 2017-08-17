@@ -27,10 +27,14 @@ export interface Sinks {
 
 export default function Icon(sources: Sources): Sinks {
   const vdom$ = sources.props$.map(props => {
-    if (props.name) {
+    const [type, name] = props.name.split('.');
+    if (type && name) {
       const className = classNameWithSize('cc-icon', props.size);
-      const svgTag = `<use xlink:href='icons-sprite.svg#ic_${props.name}_24px' />`;
-      return <svg className={className} innerHTML={svgTag} />;
+      const svgTag = `
+        <svg class="${className}">
+            <use xlink:href='icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
+        </svg>`;
+      return <i clat ssName={className} innerHTML={svgTag}></i>;
     } else {
       return '';
     }

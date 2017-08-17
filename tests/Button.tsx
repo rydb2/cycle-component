@@ -21,7 +21,7 @@ function main(sources: Sources): Sinks {
     DOM: sources.DOM,
     props$: Observable.of({
       label: 'hahaha',
-      icon: 'face'
+      icon: 'social.ic_cake'
     })
   }, false);
 

@@ -65,7 +65,7 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
 function view(sourceDOM: DOMSource, state$: Observable<Model>): Observable<JSX.Element> {
   const iconDOM$ = state$.flatMap(({iconProps}) => {
     return Icon({
-      DOM: sourceDOM.select('.icon'),
+      DOM: sourceDOM,
       props$: Observable.of(iconProps)
     }).DOM;
   });
@@ -73,7 +73,7 @@ function view(sourceDOM: DOMSource, state$: Observable<Model>): Observable<JSX.E
   return Observable.combineLatest(state$, iconDOM$).map(([{ label, loading, iconProps }, iconTree]) => {
     return (
       <button>
-        <i className="icon">{ iconTree }</i>
+        { iconTree }
         { label }
       </button>
     )

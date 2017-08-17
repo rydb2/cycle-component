@@ -64,13 +64,12 @@ module.exports = (env) => {
                 extract: true,
                 spriteFilename: 'icons-sprite.svg'
                 // runtimeGenerator: require.resolve('./extracting-runtime-generator.js')
-              }
-            }
+              },
+            },
             // {
             //   loader: 'file-loader',
             //   query: {
-            //     name: 'svg/[name].[ext]',
-            //     // publicPath: '//127.0.0.1:8888/',
+            //     name: '[name].[ext]',
             //   },
             // },
             // {
@@ -123,7 +122,7 @@ module.exports = (env) => {
     },
     resolve: {
       modules: [
-        path.resolve(__dirname, '../src/scripts/'),
+        path.resolve(__dirname, '../components/'),
         '../node_modules/',
       ],
       extensions: ['.ts', '.tsx', '.js'],
