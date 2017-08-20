@@ -14,3 +14,5 @@ Icon({
   })
 })
 ```
+
+## Loading animation use spinkit

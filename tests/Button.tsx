@@ -17,28 +17,75 @@ type Sinks = {
 }
 
 function main(sources: Sources): Sinks {
-  const button = Button({
+  const raisedBtn = Button({
     DOM: sources.DOM,
     props$: Observable.of({
-      label: 'hahaha',
-      icon: 'social.ic_cake'
+      label: 'button',
+      type: 'raised',
+      secondary: true,
+      icon: {
+        name: 'social.ic_cake',
+        color: '#ffffff',
+      },
     })
-  }, false);
+  });
 
-  const vdom$ = Observable.combineLatest(button.DOM)
-    .map(([buttonTree]) => {
+  const raisedBtnLoading = Button({
+    DOM: sources.DOM,
+    props$: Observable.of({
+      label: 'button',
+      type: 'raised',
+      loading: true,
+    })
+  });
+
+  const flatBtn = Button({
+    DOM: sources.DOM,
+    props$: Observable.of({
+      label: 'outline button',
+      type: 'flat',
+    })
+  });
+
+  const flatBtnLoading = Button({
+    DOM: sources.DOM,
+    props$: Observable.of({
+      label: 'outline button',
+      type: 'flat',
+      loading: true,
+    })
+  });
+
+  const disabledBtn = Button({
+    DOM: sources.DOM,
+    props$: Observable.of({
+      label: 'outline button',
+      type: 'raised',
+      disabled: true,
+    })
+  });
+
+  const vdom$ = Observable.combineLatest(
+    raisedBtn.DOM,
+    raisedBtnLoading.DOM,
+    flatBtn.DOM,
+    flatBtnLoading.DOM,
+    disabledBtn.DOM
+  )
+    .map(btns => {
+      let style = {
+        marginTop: '20px',
+      };
       return (
         <div>
-          { buttonTree }
+          {
+            btns.map(each => {
+              return <li style={style}>{each}</li>
+            })
+          }
         </div>
       )
     });
-
-  Object.keys(button.actions).forEach(eName => {
-    button.actions[eName].subscribe(e => {
-      console.log(eName);
-    })
-  });
 
   return {
     DOM: vdom$

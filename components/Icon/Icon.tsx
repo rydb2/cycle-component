@@ -12,6 +12,7 @@ import './style.less'
 export interface Props {
   name: string;
   size?: string;
+  color?: string;
 }
 
 export interface Sources {
@@ -31,13 +32,11 @@ export default function Icon(sources: Sources): Sinks {
     if (type && name) {
       const className = classNameWithSize('cc-icon', props.size);
       const svgTag = `
-        <svg class="${className}">
-            <use xlink:href='icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
+        <svg class="${className}" fill="${props.color || ''}">
+            <use xlink:href='cc-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
         </svg>`;
       return <i clat ssName={className} innerHTML={svgTag}></i>;
-    } else {
-      return '';
-    }
+    };
   });
 
   return {

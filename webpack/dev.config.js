@@ -62,7 +62,7 @@ module.exports = (env) => {
               loader: 'svg-sprite-loader',
               options: {
                 extract: true,
-                spriteFilename: 'icons-sprite.svg'
+                spriteFilename: 'cc-icons-sprite.svg',
                 // runtimeGenerator: require.resolve('./extracting-runtime-generator.js')
               },
             },

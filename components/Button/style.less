@@ -1,1 +1,113 @@
 /* cycle-component Button */
+@import '../variables';
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cc-button(@color, @bgColor) {
+  border: none;
+  border-radius: @button-border-radius;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-block;
+  font-size: @button-font-size;
+  font-weight: 500;
+  height: @button-height;
+  line-height: @button-height;
+  margin: 0 @button-horizontal-margin;
+  padding: 0 @button-horizontal-padding;
+  position: relative;
+  transition: all 0.3s;
+  color: @color;
+  background-color: @bgColor;
+
+  &.loading {
+    color: fade(@color, 50%);
+    background-color: fade(@bgColor, 50%);
+
+    &::before {
+      box-sizing: border-box;
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin-top: -10px;
+      margin-left: -10px;
+      border-radius: 50%;
+      border: 2px solid fade(@bgColor, 50%);
+      border-top-color: @color;
+      animation: spinner 0.8s linear infinite;
+    }
+  }
+
+  i {
+    display: inline-block;
+    line-height: @button-font-size;
+    vertical-align: middle;
+  }
+
+  .span,
+  svg,
+  label {
+    cursor: pointer;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled {
+    .span,
+    svg,
+    label {
+      cursor: not-allowed;
+    }
+
+    cursor: not-allowed;
+  }
+}
+
+.cc-button-flat {
+  .cc-button(@color-default, @color-transparent);
+
+  &:hover {
+    background-color: @button-flat-hover-bg;
+  }
+}
+
+.cc-button-raised {
+  .cc-button(@color-default, @color-default-bg);
+
+  &.primary {
+    .cc-button(@color-primary, @color-primary-bg);
+  }
+
+  &.secondary {
+    .cc-button(@color-secondary, @color-secondary-bg);
+  }
+
+  box-shadow: rgba(0, 0, 0, 0.12) 0 1px 6px, rgba(0, 0, 0, 0.12) 0 1px 4px;
+
+  &:disabled {
+    background-color: @color-disabled-bg;
+    color: @color-disabled;
+  }
+}
+
+.cc-button-primary {
+  color: @color-primary;
+}
+
+.cc-button-secondary {
+  color: @color-secondary;
+}
+
+.cc-icon-txt-wrap {
+  vertical-align: middle;
+}
+

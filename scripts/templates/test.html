@@ -32,7 +32,7 @@ function main(sources: Sources): Sinks {
     });
 
   Object.keys({{lowerFirstName}}.actions).forEach(eName => {
-    {{lowerFirstName}}.actions[eName].subscribe(e => {
+    {{lowerFirstName}}.actions[eName].subscribe((e: Event) => {
       console.log(eName);
     })
   });
