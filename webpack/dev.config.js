@@ -10,7 +10,7 @@ const mainCss = new ExtractTextPlugin('styles/main.css');
 module.exports = (env) => {
   const fileName = 'index';
   return {
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'source-map',
     target: 'web',
     entry: {
       [fileName]: [
@@ -28,7 +28,13 @@ module.exports = (env) => {
           exclude: [
             path.resolve(__dirname, '../node_modules/'),
           ],
-          use: ['awesome-typescript-loader'],
+          use: [{
+            test: 'awesome-typescript-loader'
+          }, {
+            enforce: "pre",
+            test: /\.js$/,
+            loader: "source-map-loader"
+          }],
         },
         {
           test: /\.less$/,
