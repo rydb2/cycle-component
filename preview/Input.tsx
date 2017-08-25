@@ -46,6 +46,4 @@ function main(sources: Sources): Sinks {
   };
 }
 
-run(main, {
-  DOM: makeDOMDriver('#main')
-});
+export default main;

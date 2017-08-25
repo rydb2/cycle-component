@@ -48,6 +48,8 @@ export interface Model {
   type?: string;
   disabled?: boolean;
   desc?: string;
+  primary?: boolean;
+  secondary?: boolean;
 
   iconProps?: IconProps;
 }

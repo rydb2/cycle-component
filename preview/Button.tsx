@@ -16,7 +16,7 @@ type Sinks = {
   DOM: Observable<JSX.Element>;
 }
 
-function main(sources: Sources): Sinks {
+export default function main(sources: Sources): Sinks {
   const raisedBtn = Button({
     DOM: sources.DOM,
     props$: Observable.of({
@@ -92,6 +92,3 @@ function main(sources: Sources): Sinks {
   };
 }
 
-run(main, {
-  DOM: makeDOMDriver('#main')
-});

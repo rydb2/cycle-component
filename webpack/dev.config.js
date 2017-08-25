@@ -8,13 +8,13 @@ const mainCss = new ExtractTextPlugin('styles/main.css');
 
 // webpack.config.js
 module.exports = (env) => {
-  const fileName = env.file;
+  const fileName = 'index';
   return {
     devtool: 'cheap-module-eval-source-map',
     target: 'web',
     entry: {
       [fileName]: [
-        path.resolve(__dirname, '../tests/', fileName),
+        path.resolve(__dirname, '../preview/', fileName),
       ],
     },
     output: {
@@ -137,7 +137,7 @@ module.exports = (env) => {
       mainCss,
       new HtmlWebpackPlugin({
         filename: 'index.html',
-        template: path.resolve(__dirname, '../index.html'),
+        template: path.resolve(__dirname, '../preview/index.html'),
       }),
       new SpriteLoaderPlugin(),
     ],
