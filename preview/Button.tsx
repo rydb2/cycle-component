@@ -16,71 +16,111 @@ type Sinks = {
   DOM: Observable<JSX.Element>;
 }
 
-export default function main(sources: Sources): Sinks {
-  const raisedBtn = Button({
-    DOM: sources.DOM,
-    props$: Observable.of({
-      label: 'button',
+function raisedBtn(DOM) {
+  let config =  ({label='button',
+                  loading=false,
+                  disabled=false,
+                  primary=false,
+                  secondary=false,
+                  icon={}}) => {
+    return Observable.of({
+      loading,
+      disabled,
+      secondary,
+      primary,
+      label,
       type: 'raised',
-      secondary: true,
+      icon
+    })
+  };
+  return Observable.combineLatest(
+    Button({DOM, props$: config({})}).DOM,
+    Button({DOM, props$: config({loading: true})}).DOM,
+
+    Button({DOM, props$: config({label: 'primary', primary: true})}).DOM,
+    Button({DOM, props$: config({label: 'primary', primary: true, loading: true})}).DOM,
+    Button({DOM, props$: config({
+      label: 'primary',
+      primary: true,
       icon: {
         name: 'social.ic_cake',
-        color: '#ffffff',
-      },
-    })
-  });
+        color: '#ffffff'
+      }
+    })}).DOM,
 
-  const raisedBtnLoading = Button({
-    DOM: sources.DOM,
-    props$: Observable.of({
-      label: 'button',
-      type: 'raised',
-      loading: true,
-    })
-  });
+    Button({DOM, props$: config({label: 'secondary', secondary: true})}).DOM,
+    Button({DOM, props$: config({label: 'secondary', secondary: true, loading: true})}).DOM,
 
-  const flatBtn = Button({
-    DOM: sources.DOM,
-    props$: Observable.of({
-      label: 'outline button',
+    Button({DOM, props$: config({label: 'disabled', disabled: true})}).DOM,
+  ).map(doms => {
+    return (
+      <div className="wrap">
+        {
+          doms.map(dom => {
+            return dom
+          })
+        }
+      </div>
+    )
+  })
+}
+
+function flatBtn(DOM) {
+  let config = ({
+    label='flatButton',
+    loading=false,
+    disabled=false,
+    primary=false,
+    secondary=false,
+    icon={}
+  }) => {
+    return Observable.of({
+      loading,
+      disabled,
+      secondary,
+      primary,
+      label,
       type: 'flat',
+      icon
     })
-  });
+  };
+  return Observable.combineLatest(
+    Button({DOM, props$: config({})}).DOM,
+    Button({DOM, props$: config({loading: true})}).DOM,
 
-  const flatBtnLoading = Button({
-    DOM: sources.DOM,
-    props$: Observable.of({
-      label: 'outline button',
-      type: 'flat',
-      loading: true,
-    })
-  });
+    Button({DOM, props$: config({label: 'primary', primary: true})}).DOM,
+    Button({DOM, props$: config({label: 'primary', primary: true, loading: true})}).DOM,
 
-  const disabledBtn = Button({
-    DOM: sources.DOM,
-    props$: Observable.of({
-      label: 'outline button',
-      type: 'raised',
-      disabled: true,
-    })
-  });
+    Button({DOM, props$: config({label: 'secondary', secondary: true})}).DOM,
+    Button({DOM, props$: config({label: 'secondary', secondary: true, loading: true})}).DOM,
 
+    Button({DOM, props$: config({label: 'disabled', disabled: true})}).DOM,
+  ).map(doms => {
+    return (
+      <div className="wrap">
+        {
+          doms.map(dom => {
+            return dom
+          })
+        }
+      </div>
+    )
+  })
+}
+
+export default function main(sources: Sources): Sinks {
   const vdom$ = Observable.combineLatest(
-    raisedBtn.DOM,
-    raisedBtnLoading.DOM,
-    flatBtn.DOM,
-    flatBtnLoading.DOM,
-    disabledBtn.DOM
-  )
-    .map(btns => {
+    raisedBtn(sources.DOM),
+    flatBtn(sources.DOM)
+  ).map(doms => {
       let style = {
         marginTop: '20px',
       };
       return (
         <div>
           {
-            btns.map(each => {
-              return <li style={style}>{each}</li>
+            doms.map(each => {
+              return <div style={style}>{each}</div>
             })
           }
         </div>

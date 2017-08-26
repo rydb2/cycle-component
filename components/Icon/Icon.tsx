@@ -33,7 +33,7 @@ export default function Icon(sources: Sources): Sinks {
       const className = classNameWithSize('cc-icon', props.size);
       const svgTag = `
         <svg class="${className}" fill="${props.color || ''}">
-            <use xlink:href='cc-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
+            <use xlink:href='material-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
         </svg>`;
       return <i className={className} innerHTML={svgTag}></i>;
     };

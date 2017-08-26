@@ -71,9 +71,10 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
       type: props.type,
       desc: props.desc,
       disabled: props.disabled,
-      iconProps: props.icon,
       primary: props.primary,
-      secondary: props.secondary
+      secondary: props.secondary,
+
+      iconProps: props.icon
     }
   });
 }
@@ -87,25 +88,22 @@ function view(sourceDOM: DOMSource, state$: Observable<Model>): Observable<JSX.E
   });
 
   return Observable.combineLatest(state$, iconDOM$)
-    .map(([
-      { label, loading, size, type, desc, disabled, primary, secondary },
-      iconTree
-    ]) => {
+    .map(([model, iconTree]) => {
       const classes = classNames(
         {
-          loading: loading,
-          [`cc-button-${type}`]: type,
-          primary,
-          secondary
+          loading: model.loading,
+          [`cc-button-${model.type}`]: model.type,
+          primary: model.primary,
+          secondary: model.secondary,
         },
-        classNameWithSize('cc-button', size)
+        classNameWithSize('cc-button', model.size),
       );
       return (
-        <button className={ classes } disabled={ disabled }>
+        <button className={ classes } disabled={ model.disabled }>
           { iconTree }
           <label className="cc-button-txt-wrap">
-            <span className="cc-button-title">{ label }</span>
-            <span className="cc-button-desc">{ desc || '' }</span>
+            <span className="cc-button-title">{ model.label }</span>
+            <span className="cc-button-desc">{ model.desc || '' }</span>
           </label>
         </button>
       )

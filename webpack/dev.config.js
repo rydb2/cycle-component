@@ -24,17 +24,16 @@ module.exports = (env) => {
     module: {
       rules: [
         {
-          test: /.*(\.js|\.tsx|\.ts|\.jsx)$/,
+          test: /.*(\.tsx|\.ts|\.jsx)$/,
           exclude: [
             path.resolve(__dirname, '../node_modules/'),
           ],
-          use: [{
-            test: 'awesome-typescript-loader'
-          }, {
-            enforce: "pre",
-            test: /\.js$/,
-            loader: "source-map-loader"
-          }],
+          use: 'awesome-typescript-loader',
+        },
+        {
+          test: /\.js$/,
+          enforce: 'pre',
+          loader: 'source-map-loader',
         },
         {
           test: /\.less$/,
@@ -68,48 +67,9 @@ module.exports = (env) => {
               loader: 'svg-sprite-loader',
               options: {
                 extract: true,
-                spriteFilename: 'cc-icons-sprite.svg',
-                // runtimeGenerator: require.resolve('./extracting-runtime-generator.js')
+                spriteFilename: 'material-icons-sprite.svg',
               },
             },
-            // {
-            //   loader: 'file-loader',
-            //   query: {
-            //     name: '[name].[ext]',
-            //   },
-            // },
-            // {
-            //   loader: 'url-loader',
-            //   query: {
-            //     hash: 'sha512',
-            //     // digest: 'hex',
-            //     limit: 100,
-            //     name: 'svg/[name].[ext]',
-            //     // publicPath: '//127.0.0.1:8888/',
-            //   },
-            // },
-            // {
-            //   loader: 'image-webpack-loader',
-            //   options: {
-            //     mozjpeg: {
-            //       quality: 65,
-            //     },
-            //     pngquant: {
-            //       quality: '65-90',
-            //       speed: 4,
-            //     },
-            //     svgo: {
-            //       plugins: [
-            //         {
-            //           removeViewBox: false,
-            //         },
-            //         {
-            //           removeEmptyAttrs: false,
-            //         },
-            //       ],
-            //     },
-            //   },
-            // },
           ],
         },
         {
@@ -135,7 +95,7 @@ module.exports = (env) => {
       alias: {},
     },
     devServer: {
-      contentBase: path.resolve(__dirname, '../dev/'),
+      contentBase: path.resolve(__dirname, '../preview/'),
       compress: true,
       port: 8888,
     },

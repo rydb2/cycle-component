@@ -60,9 +60,7 @@
   }
 
   &:disabled {
-    .span,
-    svg,
-    label {
+    & * {
       cursor: not-allowed;
     }
 
@@ -73,7 +71,23 @@
 .cc-button-flat {
   .cc-button(@color-default, @color-transparent);
 
+  &.primary {
+    .cc-button(@color-primary-bg, @color-transparent);
+  }
+
+  &.secondary {
+    .cc-button(@color-secondary-bg, @color-transparent);
+  }
+
+  &:disabled {
+    color: @color-disabled;
+  }
+
   &:hover {
+    background-color: @button-flat-hover-bg;
+  }
+
+  &.loading:hover {
     background-color: @button-flat-hover-bg;
   }
 }
