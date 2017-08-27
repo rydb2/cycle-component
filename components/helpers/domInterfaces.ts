@@ -31,9 +31,8 @@ export interface DomComponentSources {
 /* props */
 export interface DomComponentProps {
   isolate?: boolean;
-  classNames?: string;
+  classNames?: string[];
   style?: object | string;
-  size?: string;
 }
 
 export interface InputDomComponentProps extends DomComponentProps{

@@ -40,7 +40,7 @@ function intent(domSource: DOMSource) : Actions {
 function model(props$: Observable<Props>, actions: Actions) : Observable<Model> {
 }
 
-function view(state$: Observable<Model>): Observable<JSX.Element> {
+function view(model$: Observable<Model>): Observable<JSX.Element> {
 }
 
 function main(sources: Sources): Sinks {

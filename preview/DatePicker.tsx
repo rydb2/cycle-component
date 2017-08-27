@@ -5,7 +5,7 @@ import { DOMSource } from '@cycle/dom/rxjs-typings'
 import { timeDriver, TimeSource } from '@cycle/time/rxjs'
 const { html } = require('snabbdom-jsx');
 
-import { {{upperFirstName}} } from '../components'
+import { DatePicker } from '../components'
 
 type Sources = {
   DOM: DOMSource;
@@ -16,23 +16,24 @@ type Sinks = {
 }
 
 export default function main(sources: Sources): Sinks {
-  const {{lowerFirstName}} = {{upperFirstName}}({
+  const datePicker = DatePicker({
     DOM: sources.DOM,
     props$: Observable.of({
+      classNames: ['picker']
     })
   });
 
-  const vdom$ = Observable.combineLatest({{lowerFirstName}}.DOM)
-    .map(([{{lowerFirstName}}Tree]) => {
+  const vdom$ = Observable.combineLatest(datePicker.DOM)
+    .map(([datePickerTree]) => {
       return (
         <div>
-          { {{lowerFirstName}}Tree }
+          { datePickerTree }
         </div>
       )
     });
 
-  Object.keys({{lowerFirstName}}.actions).forEach(eName => {
-    {{lowerFirstName}}.actions[eName].subscribe((e: Event) => {
+  Object.keys(datePicker.actions).forEach(eName => {
+    datePicker.actions[eName].subscribe((e: Event) => {
       console.log(eName);
     })
   });
@@ -41,5 +42,4 @@ export default function main(sources: Sources): Sinks {
     DOM: vdom$
   };
 }
-
 

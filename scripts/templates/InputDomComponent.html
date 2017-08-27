@@ -8,11 +8,11 @@ const classNames = require('classnames');
 
 import {
   InputDomComponentSinks,
-  InputDomActions,
+  InputDomComponentActions,
   InputDomComponentProps,
   DomComponentSources } from '../helpers/domInterfaces'
 import { classNameWithSize } from '../helpers/tools'
-import './style.scss'
+import './style.less'
 
 /* sources */
 export interface Props extends InputDomComponentProps {
@@ -25,7 +25,7 @@ export interface Sources extends DomComponentSources {
 }
 
 /* sinks */
-export interface Actions extends InputDomActions {
+export interface Actions extends InputDomComponentActions {
 }
 
 export interface Sinks extends InputDomComponentSinks {
@@ -42,7 +42,7 @@ function intent(domSource: DOMSource) : Actions {
 function model(props$: Observable<Props>, actions: Actions) : Observable<Model> {
 }
 
-function view(state$: Observable<Model>): Observable<JSX.Element> {
+function view(model$: Observable<Model>): Observable<JSX.Element> {
 }
 
 function main(sources: Sources): Sinks {

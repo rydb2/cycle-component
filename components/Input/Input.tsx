@@ -61,7 +61,7 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<any> {
       error,
       placeholder: props.placeholder
     }
-  }).shareReplay();
+  }).shareReplay(1);
 }
 
 function view(state$: Observable<any>): Observable<JSX.Element> {

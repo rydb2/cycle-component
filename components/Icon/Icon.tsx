@@ -13,6 +13,7 @@ export interface Props {
   name: string;
   size?: string;
   color?: string;
+  classNames?: string[];
 }
 
 export interface Sources {
@@ -30,7 +31,10 @@ export default function Icon(sources: Sources): Sinks {
   const vdom$ = sources.props$.map(props => {
     const [type, name] = props.name.split('.');
     if (type && name) {
-      const className = classNameWithSize('cc-icon', props.size);
+      let className = classNameWithSize('cc-icon', props.size);
+      if (props.classNames && props.classNames.length > 0) {
+        className += ` ${props.classNames.join(' ')}`
+      }
       const svgTag = `
         <svg class="${className}" fill="${props.color || ''}">
             <use xlink:href='material-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>

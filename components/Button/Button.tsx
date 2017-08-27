@@ -42,7 +42,7 @@ export interface Sinks extends DomComponentSinks {
 
 /* model struct */
 export interface Model {
-  label: string;
+  label?: string;
   loading?: boolean;
   size?: string;
   type?: string;
@@ -51,6 +51,7 @@ export interface Model {
   primary?: boolean;
   secondary?: boolean;
 
+  classNames?: string[];
   iconProps?: IconProps;
 }
 
@@ -74,37 +75,42 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
       primary: props.primary,
       secondary: props.secondary,
 
+      classNames: props.classNames,
       iconProps: props.icon
     }
   });
 }
 
-function view(sourceDOM: DOMSource, state$: Observable<Model>): Observable<JSX.Element> {
-  const iconDOM$: Observable<JSX.Element | String> = state$.flatMap(({iconProps}) => {
+function view(sourceDOM: DOMSource, model$: Observable<Model>): Observable<JSX.Element> {
+  const iconDOM$ = model$.flatMap(({iconProps}) => {
     return iconProps && iconProps.name ? Icon({
       DOM: sourceDOM,
       props$: Observable.of(iconProps)
     }).DOM : Observable.of('');
   });
 
-  return Observable.combineLatest(state$, iconDOM$)
+  return Observable.combineLatest(model$, iconDOM$)
     .map(([model, iconTree]) => {
       const classes = classNames(
         {
           loading: model.loading,
-          [`cc-button-${model.type}`]: model.type,
+          [`cc-button--${model.type}`]: model.type,
           primary: model.primary,
           secondary: model.secondary,
         },
         classNameWithSize('cc-button', model.size),
+        model.classNames
       );
+      const content = model.label ? (
+        <label className="cc-button--content">
+          <span className="cc-button--title">{ model.label }</span>
+          <span className="cc-button--desc">{ model.desc || '' }</span>
+        </label>
+      ) : '';
       return (
         <button className={ classes } disabled={ model.disabled }>
           { iconTree }
-          <label className="cc-button-txt-wrap">
-            <span className="cc-button-title">{ model.label }</span>
-            <span className="cc-button-desc">{ model.desc || '' }</span>
-          </label>
+          { content }
         </button>
       )
     })

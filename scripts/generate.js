@@ -46,7 +46,7 @@ function createComponentFile(dir, tpl, name) {
 function createTestFile(name) {
   let testTpl = require('./templates/test.html');
   fs.writeFile(
-    path.resolve(__dirname, `../tests/${name}.tsx`),
+    path.resolve(__dirname, `../preview/${name}.tsx`),
     mustache.render(testTpl, {lowerFirstName: lowerFirst(name), upperFirstName: upperFirst(name)}),
     err => {
       if (err) throw err;

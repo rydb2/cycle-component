@@ -7,6 +7,7 @@ const { html } = require('snabbdom-jsx');
 
 import { Button } from '../components'
 import '../components/Icon'
+import { Props } from '../components/Button/Button'
 
 type Sources = {
   DOM: DOMSource;
@@ -16,22 +17,26 @@ type Sinks = {
   DOM: Observable<JSX.Element>;
 }
 
+
 function raisedBtn(DOM) {
-  let config =  ({label='button',
-                  loading=false,
-                  disabled=false,
-                  primary=false,
-                  secondary=false,
-                  icon={}}) => {
-    return Observable.of({
-      loading,
-      disabled,
-      secondary,
-      primary,
-      label,
-      type: 'raised',
-      icon
-    })
+  let config = function({
+    label='button',
+    loading=false,
+    disabled=false,
+    primary=false,
+    secondary=false,
+    icon={}
+  }):Observable<Props> {
+    let r = { loading,
+              disabled,
+              secondary,
+              primary,
+              label,
+              type: 'raised' };
+    if (Object.keys(icon).length > 0) {
+      r.icon = icon;
+    }
+    return Observable.of(r);
   };
   return Observable.combineLatest(
     Button({DOM, props$: config({})}).DOM,
@@ -66,23 +71,26 @@ function raisedBtn(DOM) {
 }
 
 function flatBtn(DOM) {
-  let config = ({
+  let config = function({
     label='flatButton',
     loading=false,
     disabled=false,
     primary=false,
     secondary=false,
     icon={}
-  }) => {
-    return Observable.of({
+  }): Observable<Props> {
+    let r = {
       loading,
       disabled,
       secondary,
       primary,
       label,
-      type: 'flat',
-      icon
-    })
+      type: 'flat'
+    };
+    if (Object.keys(icon).length > 0) {
+      r.icon = icon;
+    }
+    return Observable.of(r);
   };
   return Observable.combineLatest(
     Button({DOM, props$: config({})}).DOM,

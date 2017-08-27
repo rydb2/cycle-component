@@ -5,6 +5,7 @@ import { makeDOMDriver } from '@cycle/dom'
 
 import Button from './Button'
 import Input from './Input'
+import DatePicker from './DatePicker'
 
 import './styles/index.less'
 
@@ -12,20 +13,24 @@ const { html } = require('snabbdom-jsx');
 const classNames = require('classnames');
 
 function navigation(pathname) {
-  let btnClass = classNames([{active: pathname === 'button'}, 'link']);
-  let inputClass = classNames([{active: pathname === 'input'}, 'link']);
+  const links = ['button', 'input', 'date-picker'];
+  let linkDom = (name) => {
+    let className = classNames({active: pathname === name}, 'link');
+    return (
+      <span
+        attrs-data-link={name}
+        className={ className }>
+        {name}
+      </span>
+    )
+  }
   return (
     <nav className="nav">
-      <span
-        attrs-data-link="button"
-        className={ btnClass }>
-        Button
-      </span>
-      <span
-        attrs-data-link="input"
-        className={ inputClass }>
-        Input
-      </span>
+      {
+        links.map(link => {
+          return linkDom(link)
+        })
+      }
     </nav>
   );
 }
@@ -40,6 +45,8 @@ function view(DOM, history$) {
       page = Button({DOM});
     } else if (pathname === '/input') {
       page = Input({DOM});
+    } else if (pathname === '/date-picker') {
+      page = DatePicker({DOM});
     } else {
       page = {DOM: Observable.of(<h1>Welcome Cycle Component</h1>)}
     }

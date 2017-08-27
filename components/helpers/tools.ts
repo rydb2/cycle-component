@@ -7,5 +7,8 @@ export function classNameWithSize(className: string, size: string): string {
         default:
             return className
     }
+}
 
+export function isDate(obj) {
+    return Object.prototype.toString.call(obj) === '[object Date]';
 }
