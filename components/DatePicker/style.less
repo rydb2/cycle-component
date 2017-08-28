@@ -1,1 +1,35 @@
 /* cycle-component DatePicker */
+@import "../variables";
+@import "../Button/style";
+
+.cc-date-picker {
+  .head {
+    display: flex;
+    align-items: center;
+  }
+  .pre-month, .next-month {
+    display: inline-block;
+  }
+
+  .body .row {
+    display: flex;
+  }
+
+  .day {
+    list-style: none;
+    border: 10px;
+    box-sizing: border-box;
+    display: inline-block;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 0px;
+    padding: 4px 0px;
+    outline: none;
+    font-size: inherit;
+    font-weight: 400;
+    position: relative;
+    z-index: 1;
+    width: 42px;
+    background: none;
+  }
+}

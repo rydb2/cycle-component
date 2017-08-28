@@ -69,7 +69,7 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
       label: props.label,
       loading: props.loading,
       size: props.size,
-      type: props.type,
+      type: props.type || 'flat',
       desc: props.desc,
       disabled: props.disabled,
       primary: props.primary,

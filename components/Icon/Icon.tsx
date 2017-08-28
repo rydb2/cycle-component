@@ -39,7 +39,7 @@ export default function Icon(sources: Sources): Sinks {
         <svg class="${className}" fill="${props.color || ''}">
             <use xlink:href='material-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
         </svg>`;
-      return <i className={className} innerHTML={svgTag}></i>;
+      return <i innerHTML={svgTag}></i>;
     };
   });
 

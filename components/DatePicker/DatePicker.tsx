@@ -16,7 +16,7 @@ import { classNameWithSize } from '../helpers/tools'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { isDate } from '../helpers/tools'
-import { getPanelDays } from './tools'
+import { getPanelDays, getMonthName, getWeekdayName } from './tools'
 import './style.less'
 
 /* sources */
@@ -43,7 +43,6 @@ export interface Sinks extends InputDomComponentSinks {
 
 /* model struct */
 export interface Model {
-  headLabel: string;
   panelDate: Date;
   value: Date;
 }
@@ -87,7 +86,7 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
       actions.nexMonth.map(e => +1)
     )
     .scan((acc, cur) => acc + cur, 0)
-    .debounce(() => Observable.interval(500));
+    .debounce(() => Observable.interval(200));
 
   const newPanelDate$ = Observable
     .combineLatest(initVal$, monthChange$)
@@ -116,7 +115,6 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
   ).map(([props, panelDate, value]) => {
     return {
       value,
-      headLabel: 'ahaahh',
       panelDate
     }
   })
@@ -127,7 +125,8 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
     DOM: DOM.select('.pre-month'),
     props$: Observable.of({
       icon: {
-        name: 'navigation.ic_chevron_left'
+        name: 'navigation.ic_chevron_left',
+        fill: '#bababa',
       }
     })
   });
@@ -135,7 +134,8 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
     DOM: DOM.select('.next-month'),
     props$: Observable.of({
       icon: {
-        name: 'navigation.ic_chevron_right'
+        name: 'navigation.ic_chevron_right',
+        fill: '#bababa',
       }
     })
   });
@@ -147,14 +147,25 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
       nextMontBtn.DOM
     )
     .map(([model, preBtn, nexBtn]) => {
-    console.log(model.panelDate)
+      const panelDate = model.panelDate;
+      let headTitle = getMonthName(panelDate.getMonth()) + ' ' + panelDate.getFullYear();
+      let days = getPanelDays(panelDate.getFullYear(), panelDate.getMonth());
+      let panelBody = [];
+      days.forEach(week => {
+        let row = [];
+        week.forEach(day => {
+          row.push(<li className="day">{day.label}</li>)
+        });
+        panelBody.push(<div className="row">{row}</div>);
+      });
       return (
-        <div>
-          <div className="cc-date-picker-head">
+        <div className="cc-date-picker">
+          <div className="head">
             <div className="pre-month">{ preBtn }</div>
-            <span>{model.panelDate.toString()}</span>
+            <span>{ headTitle }</span>
             <div className="next-month">{ nexBtn }</div>
           </div>
+          <div className="body">{ panelBody }</div>
         </div>
       )
     });
