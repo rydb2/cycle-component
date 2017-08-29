@@ -91,20 +91,22 @@ function view(sourceDOM: DOMSource, model$: Observable<Model>): Observable<JSX.E
 
   return Observable.combineLatest(model$, iconDOM$)
     .map(([model, iconTree]) => {
+      let mainClass = `cc-button__${model.type || 'flat'}`;
+      if (model.primary || model.secondary) {
+        mainClass += `--${(model.primary && 'primary') || (model.secondary && 'secondary')}`
+      }
       const classes = classNames(
         {
-          loading: model.loading,
-          [`cc-button--${model.type}`]: model.type,
-          primary: model.primary,
-          secondary: model.secondary,
+          [`${mainClass}--loading`]: model.loading,
+          [mainClass]: true
         },
         classNameWithSize('cc-button', model.size),
         model.classNames
       );
       const content = model.label ? (
-        <label className="cc-button--content">
-          <span className="cc-button--title">{ model.label }</span>
-          <span className="cc-button--desc">{ model.desc || '' }</span>
+        <label className="cc-button__content">
+          <span className="cc-button__title">{ model.label }</span>
+          <span className="cc-button__desc">{ model.desc || '' }</span>
         </label>
       ) : '';
       return (

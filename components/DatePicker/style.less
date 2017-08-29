@@ -3,34 +3,105 @@
 @import "../Button/style";
 
 .cc-date-picker {
-  .head {
-    display: flex;
-    align-items: center;
-  }
-  .pre-month, .next-month {
-    display: inline-block;
-  }
-
-  .body .row {
-    display: flex;
-  }
-
-  .day {
-    list-style: none;
-    border: 10px;
-    box-sizing: border-box;
-    display: inline-block;
-    cursor: pointer;
-    text-decoration: none;
-    margin: 0px;
-    padding: 4px 0px;
-    outline: none;
-    font-size: inherit;
-    font-weight: 400;
-    position: relative;
-    z-index: 1;
-    width: 42px;
-    background: none;
-    cursor: pointer;
-  }
+  width: 310px;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 45px,
+    rgba(0, 0, 0, 0.22) 0px 10px 18px;
+  border-radius: 2px;
+  box-sizing: border-box;
+  background: @color-primary;
 }
+
+.cc-date-picker__title {
+  width: 100%;
+  height: auto;
+  float: none;
+  font-weight: 700;
+  display: inline-block;
+  background-color: @color-primary-bg;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-bottom-left-radius: 0px;
+  color: @color-primary;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.cc-date-picker__year {
+  display: block;
+}
+
+.cc-date-picker__selected-time {
+  display: block;
+  height: 38px;
+  font-size: 36px;
+  line-height: 36px;
+  margin: 10px 0px 0px;
+}
+
+.cc-date-picker__content {
+
+}
+
+.cc-date-picker__btn {
+  display: inline-block;
+}
+
+.cc-date-picker__cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+}
+
+.cc-date-picker__cal-body {
+  font-weight: 400;
+  height: 228px;
+  line-height: 2;
+  padding: 0 8px;
+}
+
+.cc-date-picker__row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.cc-date-picker__day-btn {
+  list-style: none;
+  border: 10px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: inline-block;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  margin: 0px;
+  outline: none;
+  font-size: inherit;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+  line-height: 34px;
+  background: none;
+  width: 34px;
+  height: 34px;
+
+  transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+
+  &:hover {
+    background: fade(@color-primary-bg, 10%);
+  }
+
+}
+
+.cc-date-picker__footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin: 0px;
+  max-height: 48px;
+}
+
+.cc-date-picker__confirm, .cc-date-picker__cancel {
+  margin: 4px 8px 8px 0px;
+}
+

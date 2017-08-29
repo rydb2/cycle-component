@@ -24,11 +24,11 @@
   color: @color;
   background-color: @bgColor;
 
-  &.loading {
+  &--loading {
     color: fade(@color, 50%);
     background-color: fade(@bgColor, 50%);
 
-    &::before {
+    &:before {
       box-sizing: border-box;
       content: '';
       position: absolute;
@@ -68,15 +68,21 @@
   }
 }
 
-.cc-button--flat {
+.cc-button__flat {
   .cc-button(@color-default, @color-transparent);
 
-  &.primary {
+  &--primary {
     .cc-button(@color-primary-bg, @color-transparent);
+    &:hover {
+      background-color: @button-flat-hover-bg;
+    }
   }
 
-  &.secondary {
+  &--secondary {
     .cc-button(@color-secondary-bg, @color-transparent);
+    &:hover {
+      background-color: @button-flat-hover-bg;
+    }
   }
 
   &:disabled {
@@ -87,19 +93,16 @@
     background-color: @button-flat-hover-bg;
   }
 
-  &.loading:hover {
-    background-color: @button-flat-hover-bg;
-  }
 }
 
-.cc-button--raised {
+.cc-button__raised {
   .cc-button(@color-default, @color-default-bg);
 
-  &.primary {
+  &--primary {
     .cc-button(@color-primary, @color-primary-bg);
   }
 
-  &.secondary {
+  &--secondary {
     .cc-button(@color-secondary, @color-secondary-bg);
   }
 
@@ -111,7 +114,7 @@
   }
 }
 
-.cc-icon--content {
+.cc-icon__content {
   vertical-align: middle;
 }
 

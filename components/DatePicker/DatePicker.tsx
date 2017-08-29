@@ -122,7 +122,7 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
 
 function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element> {
   const preMonthBtn = Button({
-    DOM: DOM.select('.pre-month'),
+    DOM: DOM.select('.js-pre-month'),
     props$: Observable.of({
       icon: {
         name: 'navigation.ic_chevron_left',
@@ -131,7 +131,7 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
     })
   });
   const nextMontBtn = Button({
-    DOM: DOM.select('.next-month'),
+    DOM: DOM.select('.js-next-month'),
     props$: Observable.of({
       icon: {
         name: 'navigation.ic_chevron_right',
@@ -139,33 +139,68 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
       }
     })
   });
+  const confirmBtn = Button({
+    DOM: DOM.select('.js-confirm'),
+    props$: Observable.of({
+      label: 'OK',
+      type: 'flat',
+      primary: true,
+      classNames: ['cc-date-picker__confirm'],
+    })
+  });
+  const cancelBtn = Button({
+    DOM: DOM.select('.js-cancel'),
+    props$: Observable.of({
+      label: 'CANCEL',
+      type: 'flat',
+      primary: true,
+      classNames: ['cc-date-picker__cancel'],
+    })
+  });
 
   return Observable
     .combineLatest(
       model$,
       preMonthBtn.DOM,
-      nextMontBtn.DOM
+      nextMontBtn.DOM,
+      cancelBtn.DOM,
+      confirmBtn.DOM
     )
-    .map(([model, preBtn, nexBtn]) => {
+    .map(([model, preBtn, nexBtn, cancelBtn, confirmBtn]) => {
       const panelDate = model.panelDate;
-      let headTitle = getMonthName(panelDate.getMonth()) + ' ' + panelDate.getFullYear();
       let days = getPanelDays(panelDate.getFullYear(), panelDate.getMonth());
+      let calHeadTitle = getMonthName(panelDate.getMonth()) + ' ' + panelDate.getFullYear()
       let panelBody = [];
       days.forEach(week => {
         let row = [];
         week.forEach(day => {
-          row.push(<li className="day">{day.label}</li>)
+          row.push(<li className="cc-date-picker__day-btn">{day.label}</li>)
         });
-        panelBody.push(<div className="row">{row}</div>);
+        panelBody.push(<div className="cc-date-picker__row">{row}</div>);
       });
+
+      let curDateStr = getWeekdayName(model.value.getDay()).substring(0, 3) + ', ' +
+        getMonthName(model.value.getMonth()).substring(0, 3) + ', ' +
+        model.value.getFullYear();
+
       return (
         <div className="cc-date-picker">
-          <div className="head">
-            <div className="pre-month">{ preBtn }</div>
-            <span>{ headTitle }</span>
-            <div className="next-month">{ nexBtn }</div>
+          <div className="cc-date-picker__title">
+            <span className="cc-date-picker__year">{model.value.getFullYear()}</span>
+            <span className="cc-date-picker__selected-time">{curDateStr}</span>
           </div>
-          <div className="body">{ panelBody }</div>
+          <div className="cc-date-picker__content">
+            <div className="cc-date-picker__cal-head">
+              <div className="js-pre-month cc-date-picker__btn">{ preBtn }</div>
+              <span>{ calHeadTitle }</span>
+              <div className="js-next-month cc-date-picker__btn">{ nexBtn }</div>
+            </div>
+            <div className="cc-date-picker__cal-body">{ panelBody }</div>
+          </div>
+          <div className="cc-date-picker__footer">
+            { cancelBtn }
+            { confirmBtn }
+          </div>
         </div>
       )
     });
