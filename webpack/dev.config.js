@@ -89,13 +89,14 @@ module.exports = (env) => {
     resolve: {
       modules: [
         path.resolve(__dirname, '../components/'),
+        path.resolve(__dirname, '../preview/'),
         '../node_modules/',
       ],
-      extensions: ['.ts', '.tsx', '.js'],
+      extensions: ['.tsx', '.ts', '.js'],
       alias: {},
     },
     devServer: {
-      contentBase: path.resolve(__dirname, '../preview/'),
+      contentBase: path.resolve(__dirname, '..'),
       compress: true,
       port: 8888,
     },

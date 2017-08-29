@@ -15,12 +15,19 @@
       "es2015"
     ]
   },
+  "include": [
+      "./components/**/*.{ts,tsx}",
+      "./preview/**/*.{ts,tsx}"
+  ],
   "formatCodeOptions": {
   },
   "exclude": [
     "node_modules"
   ],
   "awesomeTypescriptLoaderOptions": {
-    "useBabel": true
+    "useBabel": true,
+    "reportFiles": [
+        "./components/**/*.{ts,tsx}"
+    ]
   }
 }
