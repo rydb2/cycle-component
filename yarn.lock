@@ -350,9 +350,9 @@ autoprefixer@^7.1.2:
     postcss "^6.0.6"
     postcss-value-parser "^3.2.3"
 
-awesome-typescript-loader@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.npmjs.org/awesome-typescript-loader/-/awesome-typescript-loader-3.2.2.tgz#f2e247cd8c129eef17c0c073d7d3a67d74a90684"
+awesome-typescript-loader@^3.2.3:
+  version "3.2.3"
+  resolved "http://registry.npm.taobao.org/awesome-typescript-loader/download/awesome-typescript-loader-3.2.3.tgz#aa2119b7c808a031e2b28945b031450a8975367f"
   dependencies:
     colors "^1.1.2"
     enhanced-resolve "3.3.0"

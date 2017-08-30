@@ -51,10 +51,10 @@ export interface Model {
 function intent(domSource: DOMSource) : Actions {
   return {
     preMonth: domSource
-      .select('.pre-month')
+      .select('.js-pre-month')
       .events('click'),
     nexMonth: domSource
-      .select('.next-month')
+      .select('.js-next-month')
       .events('click'),
     yearToggle: domSource
       .select('.year')
