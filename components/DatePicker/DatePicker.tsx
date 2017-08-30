@@ -13,7 +13,7 @@ import {
   DomComponentSources } from '../helpers/domInterfaces'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
-import { isDate } from '../helpers/tools'
+import { isDate, animationEnd } from '../helpers/tools'
 import { getPanelDays, getMonthName, getWeekdayName } from './tools'
 import './style.less'
 
@@ -43,6 +43,7 @@ export interface Sinks extends InputDomComponentSinks {
 export interface Model {
   panelDate: Date;
   value: Date;
+  animateDire: number; // 0 no; -1  slide right; +1 slide left
 }
 
 /* main */
@@ -83,11 +84,10 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
       actions.preMonth.map(e => -1),
       actions.nexMonth.map(e => +1)
     )
-    .scan((acc, cur) => acc + cur, 0)
-    .debounce(() => Observable.interval(200));
+    .startWith(0);
 
   const newPanelDate$ = Observable
-    .combineLatest(initVal$, monthChange$)
+    .combineLatest(initVal$, monthChange$.scan((acc, cur) => acc + cur, 0))
     .map(([initDate, change]) => {
       let month = initDate.getMonth() + change;
       return new Date(initDate.getFullYear(), month)
@@ -109,11 +109,13 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
   return Observable.combineLatest(
     props$,
     panelDate$,
-    value$
-  ).map(([props, panelDate, value]) => {
+    value$,
+    monthChange$,
+  ).map(([props, panelDate, value, monthChange]) => {
     return {
       value,
-      panelDate
+      panelDate,
+      animateDire: monthChange,
     }
   })
 }
@@ -167,7 +169,7 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
     .map(([model, preBtn, nexBtn, cancelBtn, confirmBtn]) => {
       const panelDate = model.panelDate;
       let days = getPanelDays(panelDate.getFullYear(), panelDate.getMonth());
-      let calHeadTitle = getMonthName(panelDate.getMonth()) + ' ' + panelDate.getFullYear()
+      let calHeadTitle = getMonthName(panelDate.getMonth()) + ' ' + panelDate.getFullYear();
       let panelBody = [];
       days.forEach(week => {
         let row = [];
@@ -180,6 +182,15 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
       let curDateStr = getWeekdayName(model.value.getDay()).substring(0, 3) + ', ' +
         getMonthName(model.value.getMonth()).substring(0, 3) + ', ' +
         model.value.getFullYear();
+
+      let outAnimation = classNames({
+        'cc-date-picker--slid-out-left': model.animateDire > 0,
+        'cc-date-picker--slid-out-right': model.animateDire < 0,
+      });
+      let inAnimation = classNames({
+        'cc-date-picker--slid-in-left': model.animateDire > 0,
+        'cc-date-picker--slid-in-right': model.animateDire < 0,
+      });
 
       return (
         <div className="cc-date-picker">

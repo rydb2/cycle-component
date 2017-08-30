@@ -1,3 +1,6 @@
+import { Observable } from 'rxjs'
+import {del} from "@cycle/dom";
+
 export function classNameWithSize(className: string, size: string): string {
   switch (size) {
     case 'large':

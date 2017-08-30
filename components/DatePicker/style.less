@@ -1,6 +1,7 @@
 /* cycle-component DatePicker */
 @import "../variables";
 @import "../Button/style";
+@import "../styles/animate";
 
 .cc-date-picker {
   width: 310px;
@@ -103,5 +104,26 @@
 
 .cc-date-picker__confirm, .cc-date-picker__cancel {
   margin: 4px 8px 8px 0px;
+}
+
+/* animate class */
+
+.cc-date-picker--slide-in-left {
+  animation: slideInLeft;
+  animation-duration: 0.2s;
+}
+
+.cc-date-picker--slide-in-right {
+  animation: slideInRight;
+  animation-duration: 0.2s;
+}
+
+.cc-date-picker--slide-out-left {
+  animation: slideOutLeft;
+  animation-duration: 0.2s;
+}
+.cc-date-picker--slide-out-right {
+  animation: slideOutRight;
+  animation-duration: 0.2s;
 }
 
