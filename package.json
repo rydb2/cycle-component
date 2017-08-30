@@ -11,10 +11,10 @@
   "author": "chenchao",
   "license": "ISC",
   "dependencies": {
-    "@cycle/dom": "^18.0.0",
+    "@cycle/dom": "^18.2.0",
     "@cycle/history": "^6.4.0",
-    "@cycle/isolate": "^3.0.0",
-    "@cycle/rxjs-run": "^7.0.0",
+    "@cycle/isolate": "^3.1.0",
+    "@cycle/rxjs-run": "^7.1.0",
     "@cycle/time": "^0.8.0",
     "@types/lodash": "^4.14.72",
     "babel-plugin-transform-react-jsx": "^6.24.1",
@@ -58,8 +58,8 @@
     "svgo-loader": "^1.2.1",
     "tslint-react": "^3.0.0",
     "url-loader": "^0.5.9",
-    "webpack": "^3.0.0",
-    "webpack-dev-server": "^2.5.0",
+    "webpack": "^3.5.5",
+    "webpack-dev-server": "^2.7.1",
     "webpack-manifest-plugin": "^1.1.0"
   }
 }

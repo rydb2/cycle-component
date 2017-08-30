@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs'
 import {makeHashHistoryDriver} from '@cycle/history'
-import { run } from '@cycle/rxjs-run'
+import run from '@cycle/rxjs-run'
 import { makeDOMDriver } from '@cycle/dom'
 
 import Button from './Button'
