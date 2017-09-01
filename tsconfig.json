@@ -9,6 +9,7 @@
     "module": "commonjs",
     "target": "ES5",
     "jsx": "preserve",
+    "indent": 2,
     "lib": [
       "dom",
       "es5",

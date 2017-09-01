@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs'
 import isolateFn from '@cycle/isolate'
 import { DOMSource  } from '@cycle/dom/rxjs-typings'
-import { JsxElement } from "typescript"
 import {source} from "@cycle/dom";
 
 const { html } = require('snabbdom-jsx');
@@ -12,7 +11,6 @@ import {
   InputDomComponentActions,
   InputDomComponentProps,
   DomComponentSources } from '../helpers/domInterfaces'
-import { classNameWithSize } from '../helpers/tools'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { isDate } from '../helpers/tools'
@@ -32,9 +30,9 @@ export interface Sources extends DomComponentSources {
 
 /* sinks */
 export interface Actions extends InputDomComponentActions {
+  yearToggle: Observable<Event>;
   nexMonth: Observable<Event>;
   preMonth: Observable<Event>;
-  yearToggle: Observable<Event>;
   daySelect: Observable<Event>;
 }
 
@@ -48,7 +46,7 @@ export interface Model {
 }
 
 /* main */
-function intent(domSource: DOMSource) : Actions {
+function intent(domSource: DOMSource): Actions {
   return {
     preMonth: domSource
       .select('.js-pre-month')
@@ -195,7 +193,7 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
               <span>{ calHeadTitle }</span>
               <div className="js-next-month cc-date-picker__btn">{ nexBtn }</div>
             </div>
-            <div className="cc-date-picker__cal-body">{ panelBody }</div>
+            <div className="js-cal-body cc-date-picker__cal-body">{ panelBody }</div>
           </div>
           <div className="cc-date-picker__footer">
             { cancelBtn }
