@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs'
 import isolateFn from '@cycle/isolate'
 import { DOMSource  } from '@cycle/dom/rxjs-typings'
-import { JsxElement } from "typescript"
 
 const { html } = require('snabbdom-jsx');
 const classNames = require('classnames');
@@ -9,7 +8,7 @@ const classNames = require('classnames');
 import Icon, { Props as IconProps } from '../Icon/Icon'
 import {
   DomComponentSinks,
-  DomComponentActions,
+  Action,
   DomComponentProps,
   DomComponentSources } from '../helpers/domInterfaces'
 import { classNameWithSize } from '../helpers/tools'
@@ -34,9 +33,6 @@ export interface Sources extends DomComponentSources {
 }
 
 /* sinks */
-export interface Actions extends DomComponentActions {
-}
-
 export interface Sinks extends DomComponentSinks {
 }
 
@@ -56,14 +52,21 @@ export interface Model {
 }
 
 /* main */
-function intent(domSource: DOMSource) : Actions {
-  return {
-    click$: domSource.select('button').events('click'),
-    hover$: domSource.select('button').events('hover'),
-  }
+function intent(domSource: DOMSource): Observable<Action> {
+  return Observable.merge(
+    domSource
+      .select('button')
+      .events('click')
+      .map(e => ({type: 'click', event: e})),
+    domSource
+      .select('button')
+      .events('hover')
+      .map(e => ({type: 'hover', event: e})),
+
+  )
 }
 
-function model(props$: Observable<Props>, actions: Actions) : Observable<Model> {
+function model(props$: Observable<Props>, actions$: Observable<Action>) : Observable<Model> {
   return props$.map(props => {
     return {
       label: props.label,
@@ -119,13 +122,13 @@ function view(sourceDOM: DOMSource, model$: Observable<Model>): Observable<JSX.E
 }
 
 function main(sources: Sources): Sinks {
-  const actions = intent(sources.DOM);
-  const state$ = model(sources.props$, actions);
+  const actions$ = intent(sources.DOM);
+  const state$ = model(sources.props$, actions$);
   const vdom$ = view(sources.DOM, state$);
 
   return {
     DOM: vdom$,
-    actions
+    actions$
   }
 }
 

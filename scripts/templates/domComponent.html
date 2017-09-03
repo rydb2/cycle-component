@@ -6,8 +6,8 @@ const { html } = require('snabbdom-jsx');
 const classNames = require('classnames');
 
 import {
+  Action,
   DomComponentSinks,
-  DomComponentActions,
   DomComponentProps,
   DomComponentSources } from '../helpers/domInterfaces'
 import { classNameWithSize } from '../helpers/tools'
@@ -22,9 +22,6 @@ export interface Sources extends DomComponentSources {
 }
 
 /* sinks */
-export interface Actions extends DomComponentActions {
-}
-
 export interface Sinks extends DomComponentSinks {
 }
 
@@ -33,7 +30,7 @@ export interface Model {
 }
 
 /* main */
-function intent(domSource: DOMSource) : Actions {
+function intent(domSource: DOMSource): Observable<Action> {
 }
 
 function model(props$: Observable<Props>, actions: Actions) : Observable<Model> {
@@ -43,13 +40,13 @@ function view(model$: Observable<Model>): Observable<JSX.Element> {
 }
 
 function main(sources: Sources): Sinks {
-  const actions = intent(sources.DOM);
-  const state$ = model(sources.props$, actions);
+  const actions$ = intent(sources.DOM);
+  const state$ = model(sources.props$, actions$);
   const vdom$ = view(state$);
 
   return {
     DOM: vdom$,
-    actions,
+    actions$,
   }
 }
 
