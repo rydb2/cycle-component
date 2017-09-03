@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs'
+import isolateFn from '@cycle/isolate'
 import { DOMSource } from '@cycle/dom/rxjs-typings'
 import { source } from '@cycle/dom'
 
@@ -22,65 +23,84 @@ export interface Props {
 }
 
 /* intent */
-export interface Actions {
-  nextMonth: Observable<Event>;
-  preMonth: Observable<Event>;
-  daySelect: Observable<Event>;
+export interface Action {
+  type: string;
+  event?: Event;
+  value?: any;
 }
 
-export function intent(domSource: DOMSource): Actions {
-  return {
-    preMonth: domSource
+function intent(domSource: DOMSource): Observable<Action>{
+  return Observable.merge(
+    domSource
       .select('.js-pre-month')
-      .events('click'),
-    nextMonth: domSource
+      .events('click')
+      .map(e => ({type: 'prev', event: e})),
+    domSource
       .select('.js-next-month')
-      .events('click'),
-    daySelect: domSource
+      .events('click')
+      .map(e => ({ type: 'next', event: e })),
+    domSource
       .select('.day')
-      .events('click'),
-  }
+      .events('click')
+      .map(e => ({type: 'selectDay', event: e})),
+  )
 }
 
 interface Animations {
   panel: Observable<{key: string, status: string, className: string}>;
 }
 
-function animations(DOM: DOMSource, actions: Actions) {
+function animationIntent(DOM: DOMSource, actions: Observable<Action>): Animations {
 
-  const prePanel$ = actions.preMonth.map(e => 'slide-right');
-  const nextPanel$ = actions.nextMonth.map(e => 'slide-left');
+  const prePanel$ = actions.filter(action => action.type === 'prev').map(e => 'right');
+  const nextPanel$ = actions.filter(action => action.type === 'next').map(e => 'left');
 
   const panelAnimation = Observable.merge(prePanel$, nextPanel$)
-    .throttle(slideDuration)
+    .throttleTime(slideDuration)
     .flatMap(name => {
-      return simpleAnimate('panel', DOM.select('.js-cal-body'), name);
+      return simpleAnimate(name, DOM.select('.js-cal-body'), name);
     })
-    .startWith({key: 'panel', status: '', className: ''});
+    .startWith({key: null, status: '', className: ''})
+    .shareReplay(1);
 
   return {
-    panel: Observable.merge(prePanel$, nextPanel$),
+    panel: panelAnimation,
   }
 }
 
 /* model */
 export interface Model {
   days: { value: string, label: number}[];
-  panelAnimationClass: string;
+  title: string;
+  panelAnimation: {name: string, classNames: string};
 }
 
-function model(props$: Observable<Props>, actions: Actions, animations: Animations): Observable<Model> {
+function model(
+  props$: Observable<Props>,
+  actions$: Observable<Action>,
+  animations: Animations
+): Observable<Model> {
   return Observable
     .combineLatest(props$, animations.panel)
     .map(([props, panelAnimation]) => {
+      let title = getMonthName(props.date.getMonth()) + ' ' + props.date.getFullYear();
       return {
         days: getPanelDays(props.date.getFullYear(), props.date.getMonth()),
-        panelAnimationClass: panelAnimation.className
+        title,
+        panelAnimation: {
+          name: panelAnimation.key,
+          classNames: panelAnimation.className
+        }
       }
     })
 }
 
 /* view */
+interface Sinks {
+  DOM: DOMSource;
+  actions$: Observable<Action>;
+}
+
 function preMonthBtn(DOM: DOMSource) {
   return Button({
     DOM: DOM.select('.js-pre-month'),
@@ -105,41 +125,41 @@ function nextMontBtn(DOM: DOMSource) {
   });
 }
 
-function confirmBtn(DOM: DOMSource) {
-  return Button({
-    DOM: DOM.select('.js-confirm'),
-    props$: Observable.of({
-      label: 'OK',
-      type: 'flat',
-      primary: true,
-      classNames: ['cc-date-picker__confirm'],
-    })
-  });
-}
-
-function cancelBtn(DOM: DOMSource) {
-  return Button({
-    DOM: DOM.select('.js-cancel'),
-    props$: Observable.of({
-      label: 'CANCEL',
-      type: 'flat',
-      primary: true,
-      classNames: ['cc-date-picker__cancel'],
-    })
-  });
-}
-
 function view(DOM:DOMSource,
-              model$:Observable<Model>,
-              animation:Observable<Animation>) {
+              model$:Observable<Model>) {
 
   return Observable.combineLatest(
-    model$
-  )
+    model$,
+    preMonthBtn(DOM.select('.js-pre-month')).DOM,
+    nextMontBtn(DOM.select('.js-next-month')).DOM,
+  ).map(([model, preBtn, nextBtn]) => {
+    return (
+      <div>
+        <div className="cc-date-picker__cal-head">
+          <div className="js-pre-month cc-date-picker__btn">{ preBtn }</div>
+          <span>{ model.title }</span>
+          <div className="js-next-month cc-date-picker__btn">{ nextBtn }</div>
+        </div>
+        <div className="js-cal-body cc-date-picker__cal-body">
+          {
+            model.days.map(day => <li className="cc-date-picker__day-btn">{day.label}</li>)
+          }
+        </div>
+      </div>
+    )
+  })
 }
 
-function main(sources) {
+function main(sources): {DOM: DOMSource, actions$: Observable<Action>} {
+  const actions$ = intent(sources.DOM);
+  const animations$ = animationIntent(sources.DOM, actions$);
+  const model$ = model(sources.props$, actions$, animations$);
+  const vdom$ = view(sources.DOM, model$);
 
+  return {
+    DOM: vdom$,
+    actions$
+  }
 }
 
 export default function isolateDatePicker(sources: Sources, isolate: boolean = true): Sinks {

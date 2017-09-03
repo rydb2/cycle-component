@@ -58,8 +58,8 @@ export interface Model {
 /* main */
 function intent(domSource: DOMSource) : Actions {
   return {
-    click: domSource.select('button').events('click'),
-    hover: domSource.select('button').events('hover'),
+    click$: domSource.select('button').events('click'),
+    hover$: domSource.select('button').events('hover'),
   }
 }
 

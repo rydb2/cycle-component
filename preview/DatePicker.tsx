@@ -32,12 +32,6 @@ export default function main(sources: Sources): Sinks {
       )
     });
 
-  Object.keys(datePicker.actions).forEach(eName => {
-    datePicker.actions[eName].subscribe((e: Event) => {
-      console.log(eName);
-    })
-  });
-
   return {
     DOM: vdom$
   };

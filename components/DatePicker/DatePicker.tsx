@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { Observable, Subject } from 'rxjs'
 import isolateFn from '@cycle/isolate'
 import { DOMSource  } from '@cycle/dom/rxjs-typings'
 import {source} from "@cycle/dom";
@@ -10,11 +10,16 @@ import {
   InputDomComponentSinks,
   InputDomComponentActions,
   InputDomComponentProps,
-  DomComponentSources } from '../helpers/domInterfaces'
+  DomComponentSources,
+} from '../helpers/domInterfaces'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
 import { isDate, animationEnd } from '../helpers/tools'
 import { getPanelDays, getMonthName, getWeekdayName } from './tools'
+import {
+  intent as DaysPanelIntent,
+  default as DaysPanel,
+} from './DaysPanel'
 import './style.less'
 
 /* sources */
@@ -29,11 +34,10 @@ export interface Sources extends DomComponentSources {
 }
 
 /* sinks */
-export interface Actions extends InputDomComponentActions {
-  yearToggle: Observable<Event>;
-  nexMonth: Observable<Event>;
-  preMonth: Observable<Event>;
-  daySelect: Observable<Event>;
+export interface Action {
+  type: string;
+  event?: Event;
+  value?: any;
 }
 
 export interface Sinks extends InputDomComponentSinks {
@@ -43,28 +47,18 @@ export interface Sinks extends InputDomComponentSinks {
 export interface Model {
   panelDate: Date;
   value: Date;
-  animateDire: number; // 0 no; -1  slide right; +1 slide left
 }
 
 /* main */
-function intent(domSource: DOMSource): Actions {
-  return {
-    preMonth: domSource
-      .select('.js-pre-month')
-      .events('click'),
-    nexMonth: domSource
-      .select('.js-next-month')
-      .events('click'),
-    yearToggle: domSource
-      .select('.year')
-      .events('click'),
-    daySelect: domSource
-      .select('.day')
+function intent(domSource: DOMSource): Observable<Action> {
+  return Observable.merge(
+    domSource.select('.js-year')
       .events('click')
-  }
+      .map(e => ({type: 'yearClick', event: e}))
+  );
 }
 
-function model(props$: Observable<Props>, actions: Actions) : Observable<Model> {
+function model(props$: Observable<Props>, actions$: Observable<Action>) : Observable<Model> {
   const initVal$ = props$.map(props => {
     let val = props.value || new Date();
     let initVal;
@@ -81,10 +75,11 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
 
   const monthChange$ = Observable
     .merge(
-      actions.preMonth.map(e => -1),
-      actions.nexMonth.map(e => +1)
+      actions$.filter(action => action.type === 'prev').map(e => -1),
+      actions$.filter(action => action.type === 'next').map(e => +1)
     )
-    .startWith(0);
+    .startWith(0)
+    .shareReplay(1);
 
   const newPanelDate$ = Observable
     .combineLatest(initVal$, monthChange$.scan((acc, cur) => acc + cur, 0))
@@ -92,10 +87,12 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
       let month = initDate.getMonth() + change;
       return new Date(initDate.getFullYear(), month)
     });
-  const panelDate$ = Observable.merge(newPanelDate$, initVal$);
+  const panelDate$ = Observable
+    .merge(newPanelDate$, initVal$)
+    .shareReplay(1);
 
-  const newVal$ = actions
-    .daySelect
+  const newVal$ = actions$
+    .filter(e => e.type === 'dayClick')
     .withLatestFrom(initVal$, monthChange$)
     .map(([e, initDate, change]) => {
       return new Date(
@@ -104,41 +101,26 @@ function model(props$: Observable<Props>, actions: Actions) : Observable<Model> 
         parseInt((e.target as HTMLElement).dataset.day)
       )
     });
-  const value$ = Observable.merge(initVal$, newVal$);
+  const value$ = Observable.merge(initVal$, newVal$).shareReplay(1);
 
   return Observable.combineLatest(
     props$,
     panelDate$,
     value$,
     monthChange$,
-  ).map(([props, panelDate, value, monthChange]) => {
+  ).map(([props, panelDate, value]) => {
     return {
       value,
-      panelDate,
-      animateDire: monthChange,
+      panelDate
     }
   })
 }
 
-function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element> {
-  const preMonthBtn = Button({
-    DOM: DOM.select('.js-pre-month'),
-    props$: Observable.of({
-      icon: {
-        name: 'navigation.ic_chevron_left',
-        fill: '#bababa',
-      }
-    })
-  });
-  const nextMontBtn = Button({
-    DOM: DOM.select('.js-next-month'),
-    props$: Observable.of({
-      icon: {
-        name: 'navigation.ic_chevron_right',
-        fill: '#bababa',
-      }
-    })
-  });
+function view(
+  DOM:DOMSource,
+  model$: Observable<Model>,
+  daysPanelDOM
+): Observable<JSX.Element> {
   const confirmBtn = Button({
     DOM: DOM.select('.js-confirm'),
     props$: Observable.of({
@@ -161,50 +143,30 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
   return Observable
     .combineLatest(
       model$,
-      preMonthBtn.DOM,
-      nextMontBtn.DOM,
       cancelBtn.DOM,
-      confirmBtn.DOM
+      confirmBtn.DOM,
+      daysPanelDOM
     )
-    .map(([model, preBtn, nexBtn, cancelBtn, confirmBtn]) => {
+    .map(([model, cancelBtn, confirmBtn, daysPanelTree]) => {
       const panelDate = model.panelDate;
       let days = getPanelDays(panelDate.getFullYear(), panelDate.getMonth());
-      let calHeadTitle = getMonthName(panelDate.getMonth()) + ' ' + panelDate.getFullYear();
-      let panelBody = [];
-      days.forEach(week => {
-        let row = [];
-        week.forEach(day => {
-          row.push(<li className="cc-date-picker__day-btn">{day.label}</li>)
-        });
-        panelBody.push(<div className="cc-date-picker__row">{row}</div>);
-      });
 
       let curDateStr = getWeekdayName(model.value.getDay()).substring(0, 3) + ', ' +
         getMonthName(model.value.getMonth()).substring(0, 3) + ', ' +
         model.value.getFullYear();
 
-      let outAnimation = classNames({
-        'cc-date-picker--slid-out-left': model.animateDire > 0,
-        'cc-date-picker--slid-out-right': model.animateDire < 0,
-      });
-      let inAnimation = classNames({
-        'cc-date-picker--slid-in-left': model.animateDire > 0,
-        'cc-date-picker--slid-in-right': model.animateDire < 0,
-      });
-
       return (
         <div className="cc-date-picker">
           <div className="cc-date-picker__title">
-            <span className="cc-date-picker__year">{model.value.getFullYear()}</span>
-            <span className="cc-date-picker__selected-time">{curDateStr}</span>
+            <span className="js-year cc-date-picker__year">
+              {model.value.getFullYear()}
+            </span>
+            <span className="cc-date-picker__selected-time">
+              {curDateStr}
+            </span>
           </div>
-          <div className="cc-date-picker__content">
-            <div className="cc-date-picker__cal-head">
-              <div className="js-pre-month cc-date-picker__btn">{ preBtn }</div>
-              <span>{ calHeadTitle }</span>
-              <div className="js-next-month cc-date-picker__btn">{ nexBtn }</div>
-            </div>
-            <div className="js-cal-body cc-date-picker__cal-body">{ panelBody }</div>
+          <div className="js-content cc-date-picker__content">
+            { daysPanelTree }
           </div>
           <div className="cc-date-picker__footer">
             { cancelBtn }
@@ -216,13 +178,28 @@ function view(DOM:DOMSource, model$: Observable<Model>): Observable<JSX.Element>
 }
 
 function main(sources: Sources): Sinks {
-  const actions = intent(sources.DOM);
-  const model$ = model(sources.props$, actions);
-  const vdom$ = view(sources.DOM, model$);
+
+  const proxyCache$ = new Subject();
+  const actions$ = intent(sources.DOM);
+
+  const model$ = model(sources.props$, proxyCache$);
+
+  const daysPanel = DaysPanel({
+    DOM: sources.DOM,
+    props$: model$.map(model => ({date: model.panelDate, value: model.value}))
+  });
+
+  daysPanel
+    .actions$
+    .merge(actions$)
+    .shareReplay(1)
+    .subscribe(proxyCache$);
+
+  const vdom$ = view(sources.DOM, model$, daysPanel.DOM);
 
   return {
     DOM: vdom$,
-    actions,
+    actions$,
     value: model$.map(state => state.value),
   }
 }

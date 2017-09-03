@@ -1,10 +1,17 @@
 import { Observable } from 'rxjs'
 import { DOMSource  } from '@cycle/dom/rxjs-typings'
 
+export interface Action {
+  type: string;
+  event?: Event;
+  value?: any;
+}
+
 /* sinks */
 export interface DomComponentSinks {
   DOM: Observable<JSX.Element>;
-  actions: DomComponentActions;
+  actions?: DomComponentActions;
+  actions$: Observable<Action>;
 }
 
 export interface InputDomComponentSinks extends DomComponentSinks {
@@ -13,13 +20,13 @@ export interface InputDomComponentSinks extends DomComponentSinks {
 
 /* actions */
 export interface DomComponentActions {
-  hover?: Observable<Event>;
-  click?:  Observable<Event>;
+  hover$?: Observable<Event>;
+  click$?:  Observable<Event>;
 }
 
 export interface InputDomComponentActions extends DomComponentActions {
-  blur?: Observable<Event>;
-  input?: Observable<Event>;
+  blur$?: Observable<Event>;
+  input$?: Observable<Event>;
 }
 
 /* sources */
