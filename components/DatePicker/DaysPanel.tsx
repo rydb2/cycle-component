@@ -6,11 +6,15 @@ import { source } from '@cycle/dom'
 const { html } = require('snabbdom-jsx');
 const classNames = require('classnames');
 
-import { simple as simpleAnimate } from '../helpers/animation'
 import {
-  InputDomComponentSinks,
-  InputDomComponentActions,
-  InputDomComponentProps,
+  simple as simpleAnimate,
+  SimpleAnimation as Animation
+} from '../helpers/animation'
+
+import {
+  DomComponentSinks,
+  DomComponentActions,
+  DomComponentProps,
   DomComponentSources,
 } from '../helpers/domInterfaces'
 import { Icon } from '../Icon'
@@ -46,11 +50,11 @@ function intent(domSource: DOMSource): Observable<Action>{
   )
 }
 
-interface Animations {
-  panel: Observable<{key: string, status: string, className: string}>;
+const animationTypes = {
+  panel: 'panel'
 }
 
-function animationIntent(DOM: DOMSource, actions: Observable<Action>): Animations {
+function animationIntent(DOM: DOMSource, actions: Observable<Action>): Observable<Animation>{
 
   const prePanel$ = actions.filter(action => action.type === 'prev').map(e => 'right');
   const nextPanel$ = actions.filter(action => action.type === 'next').map(e => 'left');
@@ -58,46 +62,46 @@ function animationIntent(DOM: DOMSource, actions: Observable<Action>): Animation
   const panelAnimation = Observable.merge(prePanel$, nextPanel$)
     .throttleTime(slideDuration)
     .flatMap(name => {
-      return simpleAnimate(name, DOM.select('.js-cal-body'), name);
+      return simpleAnimate(
+        animationTypes.panel,
+        DOM.select('.js-cal-body'),
+        name
+      );
     })
-    .startWith({key: null, status: '', className: ''})
     .shareReplay(1);
 
-  return {
-    panel: panelAnimation,
-  }
+  return Observable.merge(
+    panelAnimation,
+  )
 }
 
 /* model */
 export interface Model {
   days: { value: string, label: number}[];
   title: string;
-  panelAnimation: {name: string, classNames: string};
 }
 
 function model(
   props$: Observable<Props>,
   actions$: Observable<Action>,
-  animations: Animations
 ): Observable<Model> {
+
   return Observable
-    .combineLatest(props$, animations.panel)
-    .map(([props, panelAnimation]) => {
+    .combineLatest(
+      props$,
+    )
+    .map(([props]) => {
       let title = getMonthName(props.date.getMonth()) + ' ' + props.date.getFullYear();
       return {
         days: getPanelDays(props.date.getFullYear(), props.date.getMonth()),
         title,
-        panelAnimation: {
-          name: panelAnimation.key,
-          classNames: panelAnimation.className
-        }
       }
     })
 }
 
 /* view */
 interface Sinks {
-  DOM: DOMSource;
+  DOM: Observable<JSX.Element>;
   actions$: Observable<Action>;
 }
 
@@ -150,10 +154,19 @@ function view(DOM:DOMSource,
   })
 }
 
-function main(sources): {DOM: DOMSource, actions$: Observable<Action>} {
+export interface Props extends DomComponentProps  {
+  date: Date,
+  value: Date,
+}
+
+export interface Sources extends DomComponentSources{
+  props$: Observable<Props>;
+}
+
+function main(sources: Sources): {DOM: Observable<JSX.Element>, actions$: Observable<Action>} {
   const actions$ = intent(sources.DOM);
   const animations$ = animationIntent(sources.DOM, actions$);
-  const model$ = model(sources.props$, actions$, animations$);
+  const model$ = model(sources.props$, actions$);
   const vdom$ = view(sources.DOM, model$);
 
   return {

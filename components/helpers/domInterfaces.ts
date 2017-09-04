@@ -10,7 +10,6 @@ export interface Action {
 /* sinks */
 export interface DomComponentSinks {
   DOM: Observable<JSX.Element>;
-  actions?: DomComponentActions;
   actions$: Observable<Action>;
 }
 

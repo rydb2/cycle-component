@@ -145,7 +145,7 @@ function view(
       model$,
       cancelBtn.DOM,
       confirmBtn.DOM,
-      daysPanelDOM
+      daysPanelDOM,
     )
     .map(([model, cancelBtn, confirmBtn, daysPanelTree]) => {
       const panelDate = model.panelDate;
@@ -179,7 +179,7 @@ function view(
 
 function main(sources: Sources): Sinks {
 
-  const proxyCache$ = new Subject();
+  const proxyCache$ = new Subject<Action>();
   const actions$ = intent(sources.DOM);
 
   const model$ = model(sources.props$, proxyCache$);
