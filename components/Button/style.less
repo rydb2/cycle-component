@@ -1,5 +1,5 @@
 /* cycle-component Button */
-@import '../variables';
+@import '../styles/variables';
 
 @keyframes spinner {
   to {
@@ -72,14 +72,14 @@
   .cc-button(@color-default, @color-transparent);
 
   &--primary {
-    .cc-button(@color-primary-bg, @color-transparent);
+    .cc-button(@color-primary, @color-transparent);
     &:hover {
       background-color: @button-flat-hover-bg;
     }
   }
 
   &--secondary {
-    .cc-button(@color-secondary-bg, @color-transparent);
+    .cc-button(@color-secondary, @color-transparent);
     &:hover {
       background-color: @button-flat-hover-bg;
     }
@@ -96,20 +96,20 @@
 }
 
 .cc-button__raised {
-  .cc-button(@color-default, @color-default-bg);
+  .cc-button(@color-default-opposite, @color-default);
 
   &--primary {
-    .cc-button(@color-primary, @color-primary-bg);
+    .cc-button(@color-primary-opposite, @color-primary);
   }
 
   &--secondary {
-    .cc-button(@color-secondary, @color-secondary-bg);
+    .cc-button(@color-secondary-opposite, @color-secondary);
   }
 
   box-shadow: rgba(0, 0, 0, 0.12) 0 1px 6px, rgba(0, 0, 0, 0.12) 0 1px 4px;
 
   &:disabled {
-    background-color: @color-disabled-bg;
+    background-color: @color-disabled-opposite;
     color: @color-disabled;
   }
 }

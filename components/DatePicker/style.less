@@ -1,5 +1,5 @@
 /* cycle-component DatePicker */
-@import "../variables";
+@import "../styles/variables";
 @import "../Button/style";
 @import "../styles/animate";
 
@@ -9,7 +9,7 @@
     rgba(0, 0, 0, 0.22) 0px 10px 18px;
   border-radius: 2px;
   box-sizing: border-box;
-  background: @color-primary;
+  background: @color-primary-opposite;
 }
 
 .cc-date-picker__title {
@@ -18,12 +18,12 @@
   float: none;
   font-weight: 700;
   display: inline-block;
-  background-color: @color-primary-bg;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  border-bottom-left-radius: 0px;
-  color: @color-primary;
-  padding: 20px;
+  background-color: @color-primary;
+  border-top-left-radius: @border-radius;
+  border-top-right-radius: @border-radius;
+  border-bottom-left-radius: 0;
+  color: @color-primary-opposite;
+  padding: @date-picker-title-card-padding;
   box-sizing: border-box;
 }
 
@@ -33,9 +33,9 @@
 
 .cc-date-picker__selected-time {
   display: block;
-  height: 38px;
-  font-size: 36px;
-  line-height: 36px;
+  height: @date-picker-selected-date-line-height;
+  font-size: @date-picker-selected-date-size;
+  line-height: @date-picker-selected-date-size;
   margin: 10px 0px 0px;
 }
 
@@ -57,7 +57,7 @@
 .cc-date-picker__cal-body {
   font-weight: 400;
   line-height: 2;
-  padding: 0 8px;
+  padding: @date-picker-cal-body-padding;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -69,8 +69,9 @@
 }
 
 .cc-date-picker__day-btn {
+  position: relative;
   list-style: none;
-  border: 10px;
+  border: 0px;
   border-radius: 50%;
   box-sizing: border-box;
   display: inline-block;
@@ -83,15 +84,30 @@
   font-weight: 400;
   position: relative;
   z-index: 1;
-  line-height: 42px;
   background: none;
-  width: 42px;
-  height: 42px;
+  line-height: @date-picker-cal-day-btn-size;
+  width: @date-picker-cal-day-btn-size;
+  height: @date-picker-cal-day-btn-size;
 
   transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 
-  &:hover {
-    background: fade(@color-primary-bg, 10%);
+  &:hover:after {
+    background: fade(@color-primary, 10%);
+    width: @date-picker-cal-day-btn-size;
+    height: @date-picker-cal-day-btn-size;
+  }
+
+  &:after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+    border-radius: 50%;
   }
 
 }
@@ -101,11 +117,11 @@
   flex-direction: row;
   justify-content: flex-end;
   margin: 0px;
-  max-height: 48px;
+  max-height: @date-picker-footer-height;
 }
 
 .cc-date-picker__confirm, .cc-date-picker__cancel {
-  margin: 4px 8px 8px 0px;
+  margin: @date-picker-footer-btn-margin;
 }
 
 /* animate class */

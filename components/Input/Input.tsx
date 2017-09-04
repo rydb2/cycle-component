@@ -7,12 +7,19 @@ const classNames = require('classnames');
 
 import {
   InputDomComponentSinks,
-  InputDomComponentActions,
+  Action,
   InputDomComponentProps,
   DomComponentSources } from '../helpers/domInterfaces'
 import { classNameWithSize } from '../helpers/tools'
 import './style.less'
 import {JsxElement} from "typescript";
+
+declare module 'react' {
+  interface HTMLAttributes<T> {
+    innerHTML?:string;
+  }
+
+}
 
 /* sources */
 export interface Props extends InputDomComponentProps {
@@ -25,35 +32,37 @@ export interface Sources extends DomComponentSources {
 }
 
 /* sinks */
-export interface Actions extends InputDomComponentActions {
-  focus: Observable<Event>;
-}
-
 export interface Sinks extends InputDomComponentSinks {
 }
 
 /* main */
-function intent(domSource: DOMSource) : Actions {
+function intent(domSource: DOMSource): Observable<Action> {
   const inputDom = domSource.select('input');
-  return {
-    blur: inputDom.events('blur'),
-    input: inputDom.events('input')
-                   .debounce(() => Observable.interval(300)),
-    focus: inputDom.events('focus'),
-  };
+  return Observable.merge(
+    inputDom.events('blur').map(event => ({type: 'blur', event})),
+    inputDom.events('input')
+            .map(event => ({
+              type: 'input',
+              event,
+              value: (event.target as HTMLInputElement).value
+            })),
+    inputDom.events('focus')
+             .map(event => ({ type: 'focus', event })),
+  )
 }
 
-function model(props$: Observable<Props>, actions: Actions) : Observable<any> {
+function model(props$: Observable<Props>, actions$: Observable<Action>) : Observable<any> {
   const initVal$ = props$.map(props => props.value).take(1);
-  const newVal$ = actions.input.map(e => {
-    return (e.target as HTMLInputElement).value;
-  });
+  const newVal$ = actions$
+    .filter(action => action.type === 'input')
+    .map(action => {
+      return action.value;
+    });
 
   const value$ = Observable.merge(initVal$, newVal$).shareReplay();
 
   return Observable.combineLatest(props$, value$).map(([props, value]) => {
-    const className = classNameWithSize('cc-input', props.size);
-    const classes = classNames(className, classNames);
+    const classes = classNames(classNames);
     const error = props.validate ? props.validate(value) : '';
     return {
       value: value,
@@ -77,13 +86,13 @@ function view(state$: Observable<any>): Observable<JSX.Element> {
 }
 
 function main(sources: Sources): Sinks {
-  const actions = intent(sources.DOM);
-  const state$ = model(sources.props$, actions);
+  const actions$ = intent(sources.DOM);
+  const state$ = model(sources.props$, actions$);
   const vdom$ = view(state$);
 
   return {
     DOM: vdom$,
-    actions,
+    actions$,
     value: state$.map(state => state.value),
   }
 }

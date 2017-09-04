@@ -14,12 +14,9 @@ import {
 } from '../helpers/domInterfaces'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
-import { isDate, animationEnd } from '../helpers/tools'
+import { isDate } from '../helpers/tools'
 import { getPanelDays, getMonthName, getWeekdayName } from './tools'
-import {
-  intent as DaysPanelIntent,
-  default as DaysPanel,
-} from './DaysPanel'
+import DaysPanel from './DaysPanel'
 import './style.less'
 
 /* sources */
@@ -94,11 +91,11 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
   const newVal$ = actions$
     .filter(e => e.type === 'dayClick')
     .withLatestFrom(initVal$, monthChange$)
-    .map(([e, initDate, change]) => {
+    .map(([action, initDate, change]) => {
       return new Date(
         initDate.getFullYear(),
         initDate.getMonth() + change,
-        parseInt((e.target as HTMLElement).dataset.day)
+        parseInt((action.event.target as HTMLElement).dataset.day)
       )
     });
   const value$ = Observable.merge(initVal$, newVal$).shareReplay(1);
@@ -117,9 +114,9 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
 }
 
 function view(
-  DOM:DOMSource,
+  DOM: DOMSource,
   model$: Observable<Model>,
-  daysPanelDOM
+  daysPanelDOM: Observable<JSX.Element>
 ): Observable<JSX.Element> {
   const confirmBtn = Button({
     DOM: DOM.select('.js-confirm'),

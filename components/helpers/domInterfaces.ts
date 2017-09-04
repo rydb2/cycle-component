@@ -42,5 +42,5 @@ export interface DomComponentProps {
 }
 
 export interface InputDomComponentProps extends DomComponentProps{
-  value?: any;
+  value?: number | string | Object;
 }
