@@ -104,13 +104,12 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
     props$,
     panelDate$,
     value$,
-    monthChange$,
   ).map(([props, panelDate, value]) => {
     return {
       value,
       panelDate
     }
-  })
+  }).shareReplay(1);
 }
 
 function view(
@@ -176,8 +175,8 @@ function view(
 
 function main(sources: Sources): Sinks {
 
-  const proxyCache$ = new Subject<Action>();
   const actions$ = intent(sources.DOM);
+  const proxyCache$ = new Subject<Action>();
 
   const model$ = model(sources.props$, proxyCache$);
 
@@ -186,10 +185,8 @@ function main(sources: Sources): Sinks {
     props$: model$.map(model => ({date: model.panelDate, value: model.value}))
   });
 
-  daysPanel
-    .actions$
-    .merge(actions$)
-    .shareReplay(1)
+  Observable
+    .merge(actions$, daysPanel.actions$)
     .subscribe(proxyCache$);
 
   const vdom$ = view(sources.DOM, model$, daysPanel.DOM);

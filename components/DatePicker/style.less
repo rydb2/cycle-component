@@ -54,6 +54,17 @@
   height: 48px;
 }
 
+.cc-date-picker__cal-body-wrap {
+  position: relative;
+  height: 252px;
+}
+
+.cc-date-picker__absolute-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .cc-date-picker__cal-body {
   font-weight: 400;
   line-height: 2;
@@ -66,6 +77,10 @@
 .cc-date-picker__row {
   display: flex;
   justify-content: space-around;
+}
+
+.cc-date-picker__days-panel {
+  overflow: hidden;
 }
 
 .cc-date-picker__day-btn {
@@ -128,20 +143,20 @@
 
 .cc-date-picker--slide-in-left {
   animation: slideInLeft;
-  animation-duration: 0.2s;
+  animation-duration: 2s;
 }
 
 .cc-date-picker--slide-in-right {
   animation: slideInRight;
-  animation-duration: 0.2s;
+  animation-duration: 2s;
 }
 
 .cc-date-picker--slide-out-left {
   animation: slideOutLeft;
-  animation-duration: 0.2s;
+  animation-duration: 2s;
 }
 .cc-date-picker--slide-out-right {
   animation: slideOutRight;
-  animation-duration: 0.2s;
+  animation-duration: 2s;
 }
 
