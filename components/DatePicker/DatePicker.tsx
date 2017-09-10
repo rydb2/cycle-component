@@ -42,7 +42,6 @@ export interface Sinks extends InputDomComponentSinks {
 
 /* model struct */
 export interface Model {
-  panelDate: Date;
   value: Date;
 }
 
@@ -70,44 +69,25 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
     return initVal;
   }).take(1);
 
-  const monthChange$ = Observable
-    .merge(
-      actions$.filter(action => action.type === 'prev').map(e => -1),
-      actions$.filter(action => action.type === 'next').map(e => +1)
-    )
-    .startWith(0)
-    .shareReplay(1);
-
-  const newPanelDate$ = Observable
-    .combineLatest(initVal$, monthChange$.scan((acc, cur) => acc + cur, 0))
-    .map(([initDate, change]) => {
-      let month = initDate.getMonth() + change;
-      return new Date(initDate.getFullYear(), month)
-    });
-  const panelDate$ = Observable
-    .merge(newPanelDate$, initVal$)
-    .shareReplay(1);
-
   const newVal$ = actions$
-    .filter(e => e.type === 'dayClick')
-    .withLatestFrom(initVal$, monthChange$)
-    .map(([action, initDate, change]) => {
-      return new Date(
-        initDate.getFullYear(),
-        initDate.getMonth() + change,
-        parseInt((action.event.target as HTMLElement).dataset.day)
-      )
+    .filter(action => action.type === 'daySelect')
+    .withLatestFrom(initVal$)
+    .map(([action, initDate]) => {
+      const newDate = (action.event.target as HTMLElement)
+        .dataset
+        .date
+        .split('/')
+        .map(each => parseInt(each));
+      return new Date(newDate[0], newDate[1], newDate[2]);
     });
   const value$ = Observable.merge(initVal$, newVal$).shareReplay(1);
 
   return Observable.combineLatest(
     props$,
-    panelDate$,
     value$,
-  ).map(([props, panelDate, value]) => {
+  ).map(([props, value]) => {
     return {
-      value,
-      panelDate
+      value
     }
   }).shareReplay(1);
 }
@@ -144,9 +124,6 @@ function view(
       daysPanelDOM,
     )
     .map(([model, cancelBtn, confirmBtn, daysPanelTree]) => {
-      const panelDate = model.panelDate;
-      let days = getPanelDays(panelDate.getFullYear(), panelDate.getMonth());
-
       let curDateStr = getWeekdayName(model.value.getDay()).substring(0, 3) + ', ' +
         getMonthName(model.value.getMonth()).substring(0, 3) + ', ' +
         model.value.getFullYear();
@@ -182,7 +159,7 @@ function main(sources: Sources): Sinks {
 
   const daysPanel = DaysPanel({
     DOM: sources.DOM,
-    props$: model$.map(model => ({date: model.panelDate, value: model.value}))
+    props$: model$.map(model => ({date: model.value}))
   });
 
   Observable

@@ -5,7 +5,13 @@ function getPreMonthObj(year:number, month:number) {
   }
 };
 
-export function getPanelDays(year:number, month:number): {label:string, value:string}[] {
+export function getPanelDays(
+  year:number,
+  month:number,
+  opts: {
+    current?: Date
+  } = {}
+): {label:string, value:string, cur?: boolean}[] {
   // month start with 0
   // days start with 1
   let r = [];
@@ -22,19 +28,21 @@ export function getPanelDays(year:number, month:number): {label:string, value:st
       value: `${year}/${month - 2}/${preMonthDays - i - 1}`
     });
   }
-  for (let i = 0; i < curMonthObj.end.getDate(); i++) {
-    r.push({
-      label: i + 1 + '',
-      value: `${year}/${month - 1}/${i}`
-    });
+  for (let i = 1; i <= curMonthObj.end.getDate(); i++) {
+    if (opts.current &&
+        opts.current.setHours(0, 0, 0, 0) === new Date(year, month, i).getTime()) {
+      r.push({
+        label: i + '',
+        value: `${year}/${month}/${i}`,
+        cur: true
+      });
+    } else {
+      r.push({
+        label: i + '',
+        value: `${year}/${month}/${i}`
+      });
+    }
   }
-  // let nextMonthDaysNum = 6 * 7 - curMonthObj.end.getDate() - curMonthObj.start.getDay();
-  // for (let i = 0; i < nextMonthDaysNum; i++) {
-  //   r.push({
-  //     label: i + 1,
-  //     value: `${year}/${month}/${i}`
-  //   });
-  // }
   return r;
 }
 
