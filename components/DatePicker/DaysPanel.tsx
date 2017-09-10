@@ -19,8 +19,8 @@ import {
 } from '../helpers/domInterfaces'
 import { Icon } from '../Icon'
 import { Button } from '../Button'
-import { getPanelDays, getMonthName, getWeekdayName } from './tools'
-import { slideDuration  } from './constants';
+import { getPanelDays, getMonthName, getWeekdayName, getTitle } from './tools'
+import { slideDuration } from './constants';
 import {shareReplay} from "rxjs/operator/shareReplay";
 
 export interface Props {
@@ -85,34 +85,21 @@ function animationIntent(DOM: DOMSource, actions: Observable<Action>): Observabl
 /* model */
 export interface Model {
   date: Date;
-  title: string;
-  slideLeft: boolean;
-  slideRight: boolean;
 }
 
 function model(
   props$: Observable<Props>,
   actions$: Observable<Action>,
-  animation$: Observable<Animation>,
 ): Observable<Model> {
 
   return Observable
     .combineLatest(
       props$,
-      animation$
     )
-    .map(([props, animation]) => {
+    .map(([props]) => {
       let date = props.date;
-      if (animation.status === 'start') {
-        date = new Date(date.getFullYear(), date.getMonth() - 1);
-      }
-      console.log(props.date.getMonth())
-      let title = getMonthName(props.date.getMonth()) + ' ' + props.date.getFullYear();
       return {
         date: props.date,
-        title,
-        slideLeft: animation.type === 'panel-left' && animation.status === 'start',
-        slideRight: animation.type === 'panel-right' && animation.status === 'start'
       }
     })
     .shareReplay(1);
@@ -135,23 +122,46 @@ function view(
   return Observable.combineLatest(
     model$,
     prevMonthBtnDOM,
-    nextMonthBtnDOM
-  ).map(([model, preBtn, nextBtn]) => {
-    const panelClass = classNames({
-      'cc-date-picker--slide-out-left': model.slideLeft,
-      'cc-date-picker--slide-out-right': model.slideRight,
-    }, 'js-cal-body', 'cc-date-picker__cal-body');
+    nextMonthBtnDOM,
+    animation$,
+  ).map(([model, preBtn, nextBtn, animation]) => {
+
+    const slideLeft = animation.type === 'panel-left' && animation.status === 'start';
+    const slideRight =  animation.type === 'panel-right' && animation.status === 'start';
+
+    const animationClass = classNames({
+      'cc-date-picker--slide-out-left': slideLeft,
+      'cc-date-picker--slide-out-right': slideRight,
+    });
+    const panelClass = classNames('js-cal-body', 'cc-date-picker__cal-body', animationClass);
+    const titleClass = classNames('cc-date-picker__cal-title', animationClass);
 
     return (
       <div className="cc-date-picker__days-panel">
         <div className="cc-date-picker__cal-head">
           <div className="js-pre-month cc-date-picker__btn">{ preBtn }</div>
-          <span>{ model.title }</span>
+          <div className="cc-date-picker__cal-title-wrap">
+            {
+              slideRight ? (
+                <span className="cc-date-picker__cal-title-absolute cc-date-picker--slide-in-left">
+                  {getTitle(new Date(model.date.getFullYear(), model.date.getMonth() - 1))}
+                </span>
+              ) : ''
+            }
+            <span className={titleClass}>{ getTitle(model.date) }</span>
+            {
+              slideLeft ? (
+                <span className="cc-date-picker__cal-title-absolute cc-date-picker--slide-in-right">
+                  {getTitle(new Date(model.date.getFullYear(), model.date.getMonth() + 1))}
+                </span>
+              ) : ''
+            }
+          </div>
           <div className="js-next-month cc-date-picker__btn">{ nextBtn }</div>
         </div>
         <div className="cc-date-picker__cal-body-wrap">
           {
-            model.slideRight ? (
+            slideRight ? (
               <div className="cc-date-picker--slide-in-left cc-date-picker__absolute-panel">
                 {getPanelDays(model.date.getFullYear(), model.date.getMonth()- 1).map(day => <li className="cc-date-picker__day-btn">{day.label}</li>)}
               </div>
@@ -163,7 +173,7 @@ function view(
             }
           </div>
           {
-            model.slideLeft ? (
+            slideLeft ? (
               <div className="cc-date-picker--slide-in-right cc-date-picker__absolute-panel">
                 {getPanelDays(model.date.getFullYear(), model.date.getMonth() + 1).map(day => <li className="cc-date-picker__day-btn">{day.label}</li>)}
               </div>
@@ -207,13 +217,15 @@ function main(sources: Sources): {DOM: Observable<JSX.Element>, actions$: Observ
 
   const actions$ = intent(sources.DOM, prevMonthBtn.actions$, nextMonthBtn.actions$);
   const animations$ = animationIntent(sources.DOM, actions$);
-  const model$ = model(sources.props$, actions$, animations$);
+  const model$ = model(sources.props$, actions$);
 
   const vdom$ = view(sources.DOM, model$, animations$, prevMonthBtn.DOM, nextMonthBtn.DOM);
 
   return {
     DOM: vdom$,
-    actions$
+    //it's bad. for animation duration
+    //TODO: animation auto delay? or a better animation stream encapsulation
+    actions$: actions$.delay(200)
   }
 }
 

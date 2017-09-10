@@ -38,6 +38,10 @@ export function getPanelDays(year:number, month:number): {label:string, value:st
   return r;
 }
 
+export function getTitle(date: Date): string {
+  return getMonthName(date.getMonth()) + ' ' + date.getFullYear();
+}
+
 export function getMonthName(i:number):string {
   let names = [
     'January',
