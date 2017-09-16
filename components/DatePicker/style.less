@@ -29,6 +29,28 @@
   left: 8px;
 }
 
+.cc-date-picker__placeholder {
+  .cc-date-picker__value;
+
+  color: @color-disabled;
+}
+
+.cc-date-picker__modal-wrap--visible {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+}
+
+.cc-date-picker__modal-wrap--hidden {
+  .cc-date-picker__modal--visible;
+
+  display: none;
+}
+
 .cc-date-picker__modal {
   width: 310px;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 45px,
@@ -36,20 +58,22 @@
   border-radius: 2px;
   box-sizing: border-box;
   background: @color-primary-opposite;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   z-index: 101;
+  margin: auto;
 }
 
 .cc-date-picker__modal--visible {
   .cc-date-picker__modal;
+
+  animation: slideInDown;
+  animation-duration: 200ms;
 }
 
 .cc-date-picker__modal--hidden {
   .cc-date-picker__modal;
 
+  animation: slideOutUp;
+  animation-duration: 200ms;
   display: none;
 }
 
@@ -218,7 +242,6 @@
   width: 100%;
   top: 0px;
   left: 0px;
-  opacity: 1;
   background-color: @color-backdrop;
   will-change: opacity;
   transform: translateZ(0px);
@@ -228,6 +251,8 @@
 
 .backdrop--visible {
   .backdrop;
+
+  opacity: 1;
 }
 
 .backdrop--hidden {

@@ -24,6 +24,7 @@ export interface Props extends InputDomComponentProps {
   value?: string;
   placeholder?: string;
   validate?: Function;
+  classNmaes?: string[];
 }
 
 export interface Sources extends DomComponentSources {
@@ -81,6 +82,8 @@ export interface Model {
   selectedValue: Date;
   value: string;
   modalVisible: boolean;
+  classNames: string[];
+  placeholder: string;
 }
 
 function model(props$: Observable<Props>, actions$: Observable<Action>) : Observable<Model> {
@@ -133,7 +136,9 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
     return {
       value,
       selectedValue,
-      modalVisible
+      modalVisible,
+      placeholder: props.placeholder,
+      classNames: props.classNames
     }
   }).shareReplay(1);
 }
@@ -157,30 +162,39 @@ function view(
         getMonthName(model.selectedValue.getMonth()).substring(0, 3) + ', ' +
         model.selectedValue.getFullYear();
 
+      const classes = classNames('cc-date-picker', model.classNames);
+      const modalWrapClass = 'cc-date-picker__modal-wrap--' + (model.modalVisible ? 'visible' : 'hidden');
       const modalClass = 'cc-date-picker__modal--' + (model.modalVisible ? 'visible' : 'hidden');
       const backdropClass = classNames('backdrop--' + (model.modalVisible ? 'visible' : 'hidden'), 'js-backdrop');
+      const inputClass = classNames({
+        'cc-date-picker__value': !!model.value,
+        'cc-date-picker__placeholder': !!!model.value
+      });
+
 
       return (
-        <div>
+        <div className={classes}>
           <div className='js-input cc-date-picker__input'>
-            <span className='cc-date-picker__value'>{model.value}</span>
+            <span className={inputClass}>{model.value || model.placeholder || ''}</span>
           </div>
-          <div className={backdropClass} />
-          <div className={modalClass}>
-            <div className='cc-date-picker__title'>
-              <span className='js-year cc-date-picker__year'>
-                {model.selectedValue.getFullYear()}
-              </span>
-              <span className='cc-date-picker__selected-time'>
-                {curDateStr}
-              </span>
-            </div>
-            <div className='js-content cc-date-picker__content'>
-              { daysPanelTree }
-            </div>
-            <div className="cc-date-picker__footer">
-              <div className='js-cancel'>{ cancelBtn }</div>
-              <div className='js-confirm'>{ confirmBtn }</div>
+          <div className={modalWrapClass}>
+            <div className={backdropClass} />
+            <div className={modalClass}>
+              <div className='cc-date-picker__title'>
+                <span className='js-year cc-date-picker__year'>
+                  {model.selectedValue.getFullYear()}
+                </span>
+                <span className='cc-date-picker__selected-time'>
+                  {curDateStr}
+                </span>
+              </div>
+              <div className='js-content cc-date-picker__content'>
+                { daysPanelTree }
+              </div>
+              <div className="cc-date-picker__footer">
+                <div className='js-cancel'>{ cancelBtn }</div>
+                <div className='js-confirm'>{ confirmBtn }</div>
+              </div>
             </div>
           </div>
         </div>

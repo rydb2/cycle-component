@@ -19,7 +19,8 @@ export default function main(sources: Sources): Sinks {
   const datePicker = DatePicker({
     DOM: sources.DOM,
     props$: Observable.of({
-      classNames: ['picker']
+      classNames: ['picker'],
+      placeholder: 'please select date'
     })
   });
 
