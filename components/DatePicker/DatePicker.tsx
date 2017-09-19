@@ -12,11 +12,10 @@ import {
   InputDomComponentProps,
   DomComponentSources,
 } from '../helpers/domInterfaces'
-import { Icon } from '../Icon'
 import { Button } from '../Button'
-import { isDate } from '../helpers/tools'
-import { getPanelDays, getMonthName, getWeekdayName } from './tools'
+import { getMonthName, getWeekdayName } from './tools'
 import DaysPanel from './DaysPanel'
+import YearsPanel from './YearsPanel'
 import './style.less'
 
 /* sources */
@@ -84,6 +83,7 @@ export interface Model {
   modalVisible: boolean;
   classNames: string[];
   placeholder: string;
+  yearsPanelVisible: boolean;
 }
 
 function model(props$: Observable<Props>, actions$: Observable<Action>) : Observable<Model> {
@@ -98,19 +98,27 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
   }).take(1);
 
   const newSelectedVal$ = actions$
-    .filter(action => action.type === 'daySelect')
+    .filter(action => ['daySelect', 'yearSelect'].indexOf(action.type) >= 0)
     .map(action => {
       const newDate = (action.event.target as HTMLElement)
         .dataset
         .date
         .split('/')
         .map(each => parseInt(each));
+      console.log(newDate)
       return new Date(newDate[0], newDate[1], newDate[2]);
     });
   const selectedValue$ = Observable.merge(initVal$, newSelectedVal$).shareReplay(1);
 
   const modalVisible$ = actions$
     .filter(action => ['inputClick', 'confirm', 'cancel', 'backdropClick'].indexOf(action.type) >= 0)
+    .scan((visible, event) => {
+      return !visible;
+    }, false)
+    .startWith(false);
+
+  const yearsPanelVisible$ = actions$
+    .filter(action => ['yearClick', 'yearSelect'].indexOf(action.type) >= 0)
     .scan((visible, event) => {
       return !visible;
     }, false)
@@ -132,11 +140,13 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
     value$,
     selectedValue$,
     modalVisible$,
-  ).map(([props, value, selectedValue, modalVisible]) => {
+    yearsPanelVisible$,
+  ).map(([props, value, selectedValue, modalVisible, yearsPanelVisible]) => {
     return {
       value,
       selectedValue,
       modalVisible,
+      yearsPanelVisible,
       placeholder: props.placeholder,
       classNames: props.classNames
     }
@@ -149,6 +159,7 @@ function view(
   daysPanelDOM: Observable<JSX.Element>,
   confirmBtnDOM: Observable<JSX.Element>,
   cancelBtnDOM: Observable<JSX.Element>,
+  yearsPanelDOM: Observable<JSX.Element>
 ): Observable<JSX.Element> {
   return Observable
     .combineLatest(
@@ -156,8 +167,9 @@ function view(
       cancelBtnDOM,
       confirmBtnDOM,
       daysPanelDOM,
+      yearsPanelDOM
     )
-    .map(([model, cancelBtn, confirmBtn, daysPanelTree]) => {
+    .map(([model, cancelBtn, confirmBtn, daysPanelTree, yearsPanelTree]) => {
       const curDateStr = getWeekdayName(model.selectedValue.getDay()).substring(0, 3) + ', ' +
         getMonthName(model.selectedValue.getMonth()).substring(0, 3) + ', ' +
         model.selectedValue.getFullYear();
@@ -167,8 +179,8 @@ function view(
       const modalClass = 'cc-date-picker__modal--' + (model.modalVisible ? 'visible' : 'hidden');
       const backdropClass = classNames('backdrop--' + (model.modalVisible ? 'visible' : 'hidden'), 'js-backdrop');
       const inputClass = classNames({
-        'cc-date-picker__value': !!model.value,
-        'cc-date-picker__placeholder': !!!model.value
+        'cc-date-picker__value': Boolean(model.value),
+        'cc-date-picker__placeholder': !Boolean(model.value)
       });
 
 
@@ -188,9 +200,25 @@ function view(
                   {curDateStr}
                 </span>
               </div>
-              <div className='js-content cc-date-picker__content'>
-                { daysPanelTree }
-              </div>
+
+              { !model.yearsPanelVisible
+                ? (
+                  <div className='js-content cc-date-picker__content'>
+                    { daysPanelTree }
+                  </div>
+                )
+                : ''
+              }
+              {
+                model.yearsPanelVisible
+                  ? (
+                    <div className='js-content cc-date-picker__content'>
+                      { yearsPanelTree }
+                    </div>
+                  )
+                : ''
+              }
+
               <div className="cc-date-picker__footer">
                 <div className='js-cancel'>{ cancelBtn }</div>
                 <div className='js-confirm'>{ confirmBtn }</div>
@@ -228,12 +256,17 @@ function main(sources: Sources): Sinks {
   const model$ = model(sources.props$, proxyCache$);
 
   const daysPanel = DaysPanel({
-    DOM: sources.DOM,
+    DOM: sources.DOM.select('.js-content'),
+    props$: model$.map(model => ({date: model.selectedValue}))
+  });
+
+  const yearsPanel = YearsPanel({
+    DOM: sources.DOM.select('.js-content'),
     props$: model$.map(model => ({date: model.selectedValue}))
   });
 
   Observable
-    .merge(actions$, daysPanel.actions$)
+    .merge(actions$, daysPanel.actions$, yearsPanel.actions$)
     .subscribe(proxyCache$);
 
   const vdom$ = view(
@@ -241,7 +274,8 @@ function main(sources: Sources): Sinks {
     model$,
     daysPanel.DOM,
     confirmBtn.DOM,
-    cancelBtn.DOM
+    cancelBtn.DOM,
+    yearsPanel.DOM
   );
 
   return {

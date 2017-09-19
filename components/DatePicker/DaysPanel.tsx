@@ -12,24 +12,33 @@ import {
 } from '../helpers/animation'
 
 import {
-  DomComponentSinks,
-  DomComponentActions,
   DomComponentProps,
   DomComponentSources,
+  Action
 } from '../helpers/domInterfaces'
-import { Icon } from '../Icon'
 import { Button } from '../Button'
-import { getPanelDays, getMonthName, getWeekdayName, getTitle } from './tools'
+import { getPanelDays, getTitle } from './tools'
 import { slideDuration } from './constants';
-import {shareReplay} from "rxjs/operator/shareReplay";
 
-/* intent */
-export interface Action {
-  type: string;
-  event?: Event;
-  value?: any;
+export interface Props extends DomComponentProps {
+  date: Date;
 }
 
+export interface Sources extends DomComponentSources {
+  props$: Observable<Props>;
+}
+
+export interface Model {
+  date: Date;
+  change: number;
+}
+
+interface Sinks {
+  DOM: Observable<JSX.Element>;
+  actions$: Observable<Action>;
+}
+
+/* intent */
 function intent(
   domSource: DOMSource,
   prevMonthBtnAction$: Observable<Action>,
@@ -79,11 +88,6 @@ function animationIntent(DOM: DOMSource, actions: Observable<Action>): Observabl
 }
 
 /* model */
-export interface Model {
-  date: Date;
-  change: number;
-}
-
 function model(
   props$: Observable<Props>,
   actions$: Observable<Action>,
@@ -115,12 +119,6 @@ function model(
 }
 
 /* view */
-interface Sinks {
-  DOM: Observable<JSX.Element>;
-  actions$: Observable<Action>;
-}
-
-
 function view(
   DOM: DOMSource,
   model$: Observable<Model>,
@@ -239,13 +237,6 @@ function view(
   });
 }
 
-export interface Props extends DomComponentProps {
-  date: Date;
-}
-
-export interface Sources extends DomComponentSources {
-  props$: Observable<Props>;
-}
 
 function main(sources: Sources): {DOM: Observable<JSX.Element>, actions$: Observable<Action>} {
   const prevMonthBtn = Button({

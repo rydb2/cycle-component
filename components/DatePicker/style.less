@@ -94,7 +94,26 @@
 
 .cc-date-picker__year {
   display: block;
+  cursor: pointer;
 }
+
+.cc-date-picker__year-item {
+  font-size: 17px;
+  line-height: 36px;
+  display: block;
+  text-align: center;
+  cursor: pointer;
+
+  &.selected {
+    font-size: 26px;
+    line-height: 46px;
+    color: @color-primary;
+  }
+
+  &:hover {
+    color: @color-primary;
+  }
+};
 
 .cc-date-picker__selected-time {
   display: block;
@@ -105,7 +124,8 @@
 }
 
 .cc-date-picker__content {
-
+  height: 300px;
+  overflow: scroll;
 }
 
 .cc-date-picker__btn {
