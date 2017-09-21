@@ -267,8 +267,6 @@ function main(sources: Sources): {DOM: Observable<JSX.Element>, actions$: Observ
 
   return {
     DOM: vdom$,
-    //it's bad. for animation duration
-    //TODO: animation auto delay? or a better animation stream encapsulation
     actions$
   }
 }

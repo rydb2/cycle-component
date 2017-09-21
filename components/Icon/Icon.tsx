@@ -35,11 +35,19 @@ export default function Icon(sources: Sources): Sinks {
       if (props.classNames && props.classNames.length > 0) {
         className += ` ${props.classNames.join(' ')}`
       }
-      const svgTag = `
-        <svg class="${className}" fill="${props.color || ''}">
-            <use xlink:href='material-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
-        </svg>`;
-      return <i innerHTML={svgTag}></i>;
+
+      if (SVG_SPRITE) {
+        const svgTag = `
+          <svg class="${className}" fill="${props.color || ''}">
+              <use xlink:href='material-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
+          </svg>`;
+        return <i innerHTML={svgTag}></i>;
+      } else {
+        const path = `node_modules/material-design-icons/${type}/svg/production/${name}_24px.svg`;
+        const svg = require(`!svg-inline!${path}`);
+        return <i>{svg}</i>;
+      }
+
     };
   });
 

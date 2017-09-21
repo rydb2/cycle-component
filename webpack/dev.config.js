@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
+const DefinePlugin = webpack.DefinePlugin;
 
 const mainCss = new ExtractTextPlugin('styles/main.css');
 
@@ -107,6 +108,9 @@ module.exports = (env) => {
         template: path.resolve(__dirname, '../preview/index.html'),
       }),
       new SpriteLoaderPlugin(),
+      new DefinePlugin({
+        SVG_SPRITE: false,
+      }),
     ],
-  }
+  };
 };

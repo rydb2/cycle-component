@@ -105,7 +105,6 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
         .date
         .split('/')
         .map(each => parseInt(each));
-      console.log(newDate)
       return new Date(newDate[0], newDate[1], newDate[2]);
     });
   const selectedValue$ = Observable.merge(initVal$, newSelectedVal$).shareReplay(1);
