@@ -1,83 +1,74 @@
-import { Observable, Subject } from 'rxjs'
-import isolateFn from '@cycle/isolate'
-import { DOMSource  } from '@cycle/dom/rxjs-typings'
-import {source} from "@cycle/dom";
-
+import { DOMSource } from '@cycle/dom/rxjs-typings';
+import { default as isolateFn } from '@cycle/isolate';
+import * as classNamesFn from 'classnames';
+import { Observable, Subject } from 'rxjs';
 const { html } = require('snabbdom-jsx');
-const classNames = require('classnames');
 
+import { Button } from '../Button';
 import {
-  InputDomComponentSinks,
-  InputDomComponentActions,
-  InputDomComponentProps,
-  DomComponentSources,
-} from '../helpers/domInterfaces'
-import { Button } from '../Button'
-import { getMonthName, getWeekdayName } from './tools'
-import DaysPanel from './DaysPanel'
-import YearsPanel from './YearsPanel'
-import './style.less'
+  IAction,
+  IDomComponentSources,
+  IInputDomComponentActions,
+  IInputDomComponentProps,
+  IInputDomComponentSinks,
+} from '../helpers/domInterfaces';
+
+import DaysPanel from './DaysPanel';
+import './style.less';
+import { getMonthName, getWeekdayName } from './tools';
+import YearsPanel from './YearsPanel';
 
 /* sources */
-export interface Props extends InputDomComponentProps {
+export interface IProps extends IInputDomComponentProps {
   value?: string;
+  classNames?: string[];
   placeholder?: string;
-  validate?: Function;
-  classNmaes?: string[];
 }
 
-export interface Sources extends DomComponentSources {
-  props$: Observable<Props>;
+export interface ISources extends IDomComponentSources {
+  props$: Observable<IProps>;
 }
 
-/* sinks */
-export interface Action {
-  type: string;
-  event?: Event;
-  value?: any;
+export interface ISinks extends IInputDomComponentSinks {
 }
-
-export interface Sinks extends InputDomComponentSinks {
-}
-
 
 /* main */
 function intent(
   domSource: DOMSource,
-  confirmAction$: Observable<Action>,
-  cancelAction$: Observable<Action>
-): Observable<Action> {
+  confirmAction$: Observable<IAction>,
+  cancelAction$: Observable<IAction>,
+): Observable<IAction> {
   return Observable.merge(
     domSource.select('.js-year')
       .events('click')
-      .map(e => ({type: 'yearClick', event: e})),
+      .map(event => ({ event, type: 'yearClick' })),
     domSource.select('.js-input')
       .events('click')
-      .map(e => ({type: 'inputClick', event: e})),
+      .map(event => ({ event, type: 'inputClick' })),
     domSource.select('.js-backdrop')
       .events('click')
-      .map(e => ({type: 'backdropClick', event: e})),
+      .map(event => ({ event, type: 'backdropClick' })),
     confirmAction$
       .filter(action => action.type === 'click')
-      .map(({event}) => {
+      .map(({ event }) => {
         return {
+          event,
           type: 'confirm',
-          event
         };
       }),
     cancelAction$
       .filter(action => action.type === 'click')
-      .map(({event}) => {
+      .map(({ event }) => {
         return {
+          event,
           type: 'cancel',
-          event
-        }
-      })
+        };
+      }),
   );
 }
 
 /* model struct */
-export interface Model {
+export interface IModel {
   selectedValue: Date;
   value: string;
   modalVisible: boolean;
@@ -86,11 +77,11 @@ export interface Model {
   yearsPanelVisible: boolean;
 }
 
-function model(props$: Observable<Props>, actions$: Observable<Action>) : Observable<Model> {
-  const initVal$ = props$.map(props => {
-    let val = props.value;
+function model(props$: Observable<IProps>, actions$: Observable<IAction>): Observable<IModel> {
+  const initVal$ = props$.map((props) => {
+    const val = props.value;
     if (val) {
-      let [year, month, day] = val.split('/').map(each => parseInt(each));
+      const [year, month, day] = val.split('/').map(each => parseInt(each, 10));
       return new Date(year, month - 1, day);
     } else {
       return new Date();
@@ -99,28 +90,35 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
 
   const newSelectedVal$ = actions$
     .filter(action => ['daySelect', 'yearSelect'].indexOf(action.type) >= 0)
-    .map(action => {
+    .map((action) => {
       const newDate = (action.event.target as HTMLElement)
         .dataset
         .date
         .split('/')
-        .map(each => parseInt(each));
+        .map(each => parseInt(each, 10));
       return new Date(newDate[0], newDate[1], newDate[2]);
     });
   const selectedValue$ = Observable.merge(initVal$, newSelectedVal$).shareReplay(1);
 
+  const toggleVisibleActions = ['inputClick', 'confirm', 'cancel', 'backdropClick'];
   const modalVisible$ = actions$
-    .filter(action => ['inputClick', 'confirm', 'cancel', 'backdropClick'].indexOf(action.type) >= 0)
-    .scan((visible, event) => {
-      return !visible;
-    }, false)
+    .filter(action => toggleVisibleActions.indexOf(action.type) >= 0)
+    .scan(
+      (visible, event) => {
+        return !visible;
+      },
+      false,
+    )
     .startWith(false);
 
   const yearsPanelVisible$ = actions$
     .filter(action => ['yearClick', 'yearSelect'].indexOf(action.type) >= 0)
-    .scan((visible, event) => {
-      return !visible;
-    }, false)
+    .scan(
+      (visible, event) => {
+        return !visible;
+      },
+      false,
+    )
     .startWith(false);
 
   const newValue$ = Observable.combineLatest(
@@ -130,7 +128,7 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
     return (daySelectAction.event.target as HTMLElement).dataset.date;
   });
 
-  const value$ = props$.map(props => {
+  const value$ = props$.map((props) => {
     return props.value || '';
   }).merge(newValue$);
 
@@ -142,126 +140,123 @@ function model(props$: Observable<Props>, actions$: Observable<Action>) : Observ
     yearsPanelVisible$,
   ).map(([props, value, selectedValue, modalVisible, yearsPanelVisible]) => {
     return {
-      value,
-      selectedValue,
       modalVisible,
+      selectedValue,
+      value,
       yearsPanelVisible,
+      classNames: props.classNames,
       placeholder: props.placeholder,
-      classNames: props.classNames
-    }
+    };
   }).shareReplay(1);
 }
 
 function view(
   DOM: DOMSource,
-  model$: Observable<Model>,
+  state$: Observable<IModel>,
   daysPanelDOM: Observable<JSX.Element>,
   confirmBtnDOM: Observable<JSX.Element>,
   cancelBtnDOM: Observable<JSX.Element>,
-  yearsPanelDOM: Observable<JSX.Element>
+  yearsPanelDOM: Observable<JSX.Element>,
 ): Observable<JSX.Element> {
   return Observable
     .combineLatest(
-      model$,
+      state$,
       cancelBtnDOM,
       confirmBtnDOM,
       daysPanelDOM,
-      yearsPanelDOM
+      yearsPanelDOM,
     )
-    .map(([model, cancelBtn, confirmBtn, daysPanelTree, yearsPanelTree]) => {
-      const curDateStr = getWeekdayName(model.selectedValue.getDay()).substring(0, 3) + ', ' +
-        getMonthName(model.selectedValue.getMonth()).substring(0, 3) + ', ' +
-        model.selectedValue.getFullYear();
+    .map(([state, cancelBtn, confirmBtn, daysPanelTree, yearsPanelTree]) => {
+      const curDateStr = getWeekdayName(state.selectedValue.getDay()).substring(0, 3) + ', ' +
+        getMonthName(state.selectedValue.getMonth()).substring(0, 3) + ', ' +
+        state.selectedValue.getFullYear();
 
-      const classes = classNames('cc-date-picker', model.classNames);
-      const modalWrapClass = 'cc-date-picker__modal-wrap--' + (model.modalVisible ? 'visible' : 'hidden');
-      const modalClass = 'cc-date-picker__modal--' + (model.modalVisible ? 'visible' : 'hidden');
-      const backdropClass = classNames('backdrop--' + (model.modalVisible ? 'visible' : 'hidden'), 'js-backdrop');
-      const inputClass = classNames({
-        'cc-date-picker__value': Boolean(model.value),
-        'cc-date-picker__placeholder': !Boolean(model.value)
+      const classes = classNamesFn('cc-date-picker', state.classNames);
+      const modalWrapClass = 'cc-date-picker__modal-wrap--' +
+        (state.modalVisible ? 'visible' : 'hidden');
+      const modalClass = 'cc-date-picker__modal--' +
+        (state.modalVisible ? 'visible' : 'hidden');
+      const backdropClass = classNamesFn(
+        'backdrop--' + (state.modalVisible ? 'visible' : 'hidden'),
+        'js-backdrop',
+      );
+      const inputClass = classNamesFn({
+        'cc-date-picker__placeholder': !Boolean(state.value),
+        'cc-date-picker__value': Boolean(state.value),
       });
 
-
+      const panelBody = state.yearsPanelVisible
+        ? (
+          <div className="js-content cc-date-picker__content">
+            {yearsPanelTree}
+          </div>
+        )
+        : (
+          <div className="js-content cc-date-picker__content">
+            {daysPanelTree}
+          </div>
+        );
       return (
         <div className={classes}>
-          <div className='js-input cc-date-picker__input'>
-            <span className={inputClass}>{model.value || model.placeholder || ''}</span>
+          <div className="js-input cc-date-picker__input">
+            <span className={inputClass}>{state.value || state.placeholder || ''}</span>
           </div>
           <div className={modalWrapClass}>
             <div className={backdropClass} />
             <div className={modalClass}>
-              <div className='cc-date-picker__title'>
-                <span className='js-year cc-date-picker__year'>
-                  {model.selectedValue.getFullYear()}
+              <div className="cc-date-picker__title">
+                <span className="js-year cc-date-picker__year">
+                  {state.selectedValue.getFullYear()}
                 </span>
-                <span className='cc-date-picker__selected-time'>
+                <span className="cc-date-picker__selected-time">
                   {curDateStr}
                 </span>
               </div>
-
-              { !model.yearsPanelVisible
-                ? (
-                  <div className='js-content cc-date-picker__content'>
-                    { daysPanelTree }
-                  </div>
-                )
-                : ''
-              }
-              {
-                model.yearsPanelVisible
-                  ? (
-                    <div className='js-content cc-date-picker__content'>
-                      { yearsPanelTree }
-                    </div>
-                  )
-                : ''
-              }
-
+              {panelBody}
               <div className="cc-date-picker__footer">
-                <div className='js-cancel'>{ cancelBtn }</div>
-                <div className='js-confirm'>{ confirmBtn }</div>
+                <div className="js-cancel">{cancelBtn}</div>
+                <div className="js-confirm">{confirmBtn}</div>
               </div>
             </div>
           </div>
         </div>
-      )
+      );
     });
 }
 
-function main(sources: Sources): Sinks {
+function main(sources: ISources): ISinks {
   const confirmBtn = Button({
     DOM: sources.DOM.select('.js-confirm'),
     props$: Observable.of({
-      label: 'OK',
-      type: 'flat',
-      primary: true,
       classNames: ['cc-date-picker__confirm'],
-    })
+      label: 'OK',
+      primary: true,
+      type: 'flat',
+    }),
   });
   const cancelBtn = Button({
     DOM: sources.DOM.select('.js-cancel'),
     props$: Observable.of({
-      label: 'CANCEL',
-      type: 'flat',
-      primary: true,
       classNames: ['cc-date-picker__cancel'],
-    })
+      label: 'CANCEL',
+      primary: true,
+      type: 'flat',
+    }),
   });
 
   const actions$ = intent(sources.DOM, confirmBtn.actions$, cancelBtn.actions$);
-  const proxyCache$ = new Subject<Action>();
+  const proxyCache$ = new Subject<IAction>();
 
   const model$ = model(sources.props$, proxyCache$);
 
   const daysPanel = DaysPanel({
     DOM: sources.DOM.select('.js-content'),
-    props$: model$.map(model => ({date: model.selectedValue}))
+    props$: model$.map(state => ({ date: state.selectedValue })),
   });
 
   const yearsPanel = YearsPanel({
     DOM: sources.DOM.select('.js-content'),
-    props$: model$.map(model => ({date: model.selectedValue}))
+    props$: model$.map(state => ({ date: state.selectedValue })),
   });
 
   Observable
@@ -274,17 +269,16 @@ function main(sources: Sources): Sinks {
     daysPanel.DOM,
     confirmBtn.DOM,
     cancelBtn.DOM,
-    yearsPanel.DOM
+    yearsPanel.DOM,
   );
 
   return {
-    DOM: vdom$,
     actions$,
     value: model$.map(state => state.value),
-  }
+    DOM: vdom$,
+  };
 }
 
-export default function isolateDatePicker(sources: Sources, isolate: boolean = true): Sinks {
-  return isolate ? isolateFn(main)(sources) : main(sources)
+export default function isolateDatePicker(sources: ISources, isolate: boolean = true): ISinks {
+  return isolate ? isolateFn(main)(sources) : main(sources);
 }
-

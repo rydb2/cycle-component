@@ -1,18 +1,16 @@
-import { Observable } from 'rxjs'
-import {del} from "@cycle/dom";
 
-export function classNameWithSize(className: string, size: string): string {
+export function classNameWithSize (className: string, size: string): string {
   switch (size) {
     case 'large':
       return className + '-lg';
     case 'small':
       return className + '-sm';
     default:
-      return className
+      return className;
   }
 }
 
-export function isDate(obj: any) {
+export function isDate (obj: any) {
   return Object.prototype.toString.call(obj) === '[object Date]';
 }
 

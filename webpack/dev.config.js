@@ -29,7 +29,9 @@ module.exports = (env) => {
           exclude: [
             path.resolve(__dirname, '../node_modules/'),
           ],
-          use: 'awesome-typescript-loader',
+          use: [
+            'awesome-typescript-loader'
+          ],
         },
         {
           test: /\.js$/,
@@ -102,15 +104,14 @@ module.exports = (env) => {
       port: 8888,
     },
     plugins: [
+      new DefinePlugin({
+      }),
       mainCss,
       new HtmlWebpackPlugin({
         filename: 'index.html',
         template: path.resolve(__dirname, '../preview/index.html'),
       }),
       new SpriteLoaderPlugin(),
-      new DefinePlugin({
-        SVG_SPRITE: false,
-      }),
     ],
   };
 };

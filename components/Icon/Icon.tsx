@@ -1,57 +1,47 @@
-import { Observable } from 'rxjs'
-import { DOMSource  } from '@cycle/dom/rxjs-typings'
-import { JsxElement } from "typescript"
-
+import { DOMSource  } from '@cycle/dom/rxjs-typings';
+import * as classNamesFn from 'classnames';
+import { Observable } from 'rxjs';
 const { html } = require('snabbdom-jsx');
-const classNames = require('classnames');
 
-import { classNameWithSize } from '../helpers/tools'
-import './style.less'
+import { classNameWithSize } from '../helpers/tools';
+import './style.less';
 
 /* sources */
-export interface Props {
+export interface IProps {
   name: string;
   size?: string;
   color?: string;
   classNames?: string[];
 }
 
-export interface Sources {
+export interface ISources {
   DOM: DOMSource;
-  props$: Observable<Props>;
+  props$: Observable<IProps>;
 }
 
 /* sinks */
-export interface Sinks {
-  DOM: Observable<JSX.Element | String>;
+export interface ISinks {
+  DOM: Observable<JSX.Element | string>;
 }
 
-
-export default function Icon(sources: Sources): Sinks {
-  const vdom$ = sources.props$.map(props => {
+export default function(sources: ISources): ISinks {
+  const vdom$ = sources.props$.map((props) => {
     const [type, name] = props.name.split('.');
     if (type && name) {
       let className = classNameWithSize('cc-icon', props.size);
       if (props.classNames && props.classNames.length > 0) {
-        className += ` ${props.classNames.join(' ')}`
+        className += ` ${props.classNames.join(' ')}`;
       }
 
-      if (SVG_SPRITE) {
-        const svgTag = `
-          <svg class="${className}" fill="${props.color || ''}">
-              <use xlink:href='material-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
-          </svg>`;
-        return <i innerHTML={svgTag}></i>;
-      } else {
-        const path = `node_modules/material-design-icons/${type}/svg/production/${name}_24px.svg`;
-        const svg = require(`!svg-inline!${path}`);
-        return <i>{svg}</i>;
-      }
-
-    };
+      const svgTag = `
+        <svg class="${className}" fill="${props.color || ''}">
+            <use xlink:href='material-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
+        </svg>`;
+      return <i innerHTML={svgTag}></i>;
+    }
   });
 
   return {
     DOM: vdom$,
-  }
-};
+  };
+}

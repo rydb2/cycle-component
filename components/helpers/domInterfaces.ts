@@ -1,46 +1,46 @@
-import { Observable } from 'rxjs'
-import { DOMSource  } from '@cycle/dom/rxjs-typings'
+import { DOMSource  } from '@cycle/dom/rxjs-typings';
+import { Observable } from 'rxjs';
 
-export interface Action {
+export interface IAction {
   type: string;
   event?: Event;
   value?: any;
 }
 
 /* sinks */
-export interface DomComponentSinks {
+export interface IDomComponentSinks {
   DOM: Observable<JSX.Element>;
-  actions$: Observable<Action>;
+  actions$: Observable<IAction>;
 }
 
-export interface InputDomComponentSinks extends DomComponentSinks {
-    value: Observable<any>
+export interface IInputDomComponentSinks extends IDomComponentSinks {
+  value: Observable<any>;
 }
 
 /* actions */
-export interface DomComponentActions {
+export interface IDomComponentActions {
   hover$?: Observable<Event>;
-  click$?:  Observable<Event>;
+  click$?: Observable<Event>;
 }
 
-export interface InputDomComponentActions extends DomComponentActions {
+export interface IInputDomComponentActions extends IDomComponentActions {
   blur$?: Observable<Event>;
   input$?: Observable<Event>;
 }
 
 /* sources */
-export interface DomComponentSources {
+export interface IDomComponentSources {
   DOM: DOMSource;
-  props$: Observable<DomComponentProps>;
+  props$: Observable<IDomComponentProps>;
 }
 
 /* props */
-export interface DomComponentProps {
+export interface IDomComponentProps {
   isolate?: boolean;
   classNames?: string[];
   style?: object | string;
 }
 
-export interface InputDomComponentProps extends DomComponentProps{
-  value?: number | string | Object;
+export interface IInputDomComponentProps extends IDomComponentProps {
+  value?: number | string | object;
 }

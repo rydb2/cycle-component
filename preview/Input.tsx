@@ -35,12 +35,6 @@ function main(sources: Sources): Sinks {
       )
     });
 
-  Object.keys(input.actions).forEach(eName => {
-      input.actions[eName].subscribe((e: Event) => {
-        console.log(eName);
-      })
-  });
-
   return {
     DOM: vdom$
   };

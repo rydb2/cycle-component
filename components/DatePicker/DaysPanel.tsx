@@ -1,69 +1,67 @@
-import { Observable } from 'rxjs'
-import isolateFn from '@cycle/isolate'
-import { DOMSource } from '@cycle/dom/rxjs-typings'
-import { source } from '@cycle/dom'
-
+import { source } from '@cycle/dom';
+import { DOMSource } from '@cycle/dom/rxjs-typings';
+import { default as isolateFn } from '@cycle/isolate';
+import * as classNamesFn from 'classnames';
+import { Observable } from 'rxjs';
 const { html } = require('snabbdom-jsx');
-const classNames = require('classnames');
 
 import {
   simple as simpleAnimate,
-  SimpleAnimation as Animation
-} from '../helpers/animation'
+  ISimpleAnimation as Animation,
+} from '../helpers/animation';
 
-import {
-  DomComponentProps,
-  DomComponentSources,
-  Action
-} from '../helpers/domInterfaces'
-import { Button } from '../Button'
-import { getPanelDays, getTitle } from './tools'
 import { slideDuration } from './constants';
+import { Button } from '../Button';
+import {
+  IAction,
+  IDomComponentProps,
+  IDomComponentSources,
+} from '../helpers/domInterfaces';
+import { getPanelDays, getTitle } from './tools';
 
-export interface Props extends DomComponentProps {
+export interface IProps extends IDomComponentProps {
   date: Date;
 }
 
-export interface Sources extends DomComponentSources {
-  props$: Observable<Props>;
+export interface ISources extends IDomComponentSources {
+  props$: Observable<IProps>;
 }
 
-export interface Model {
+export interface IModel {
   date: Date;
   change: number;
 }
 
-interface Sinks {
+interface ISinks {
   DOM: Observable<JSX.Element>;
-  actions$: Observable<Action>;
+  actions$: Observable<IAction>;
 }
 
 /* intent */
 function intent(
   domSource: DOMSource,
-  prevMonthBtnAction$: Observable<Action>,
-  nextMonthBtnAction$: Observable<Action>
-): Observable<Action>{
-
+  prevMonthBtnAction$: Observable<IAction>,
+  nextMonthBtnAction$: Observable<IAction>,
+): Observable<IAction> {
   return Observable.merge(
     prevMonthBtnAction$
-      .filter(({type}) => type === 'click')
-      .map(({event}) => ({type: 'prev', event})),
+      .filter(({ type }) => type === 'click')
+      .map(({ event }) => ({ event, type: 'prev' })),
     nextMonthBtnAction$
-      .filter(({type}) => type === 'click')
-      .map(({event}) => ({type: 'next', event})),
+      .filter(({ type }) => type === 'click')
+      .map(({ event }) => ({ event, type: 'next' })),
     domSource
       .select('.js-day')
       .events('click')
-      .map(e => ({type: 'daySelect', event: e})),
+      .map(event => ({ event, type: 'daySelect' })),
   );
 }
 
 const animationTypes = {
-  panel: 'panel'
+  panel: 'panel',
 };
 
-function animationIntent(DOM: DOMSource, actions: Observable<Action>): Observable<Animation>{
+function animationIntent(DOM: DOMSource, actions: Observable<IAction>): Observable<Animation> {
 
   const prePanel$ = actions.filter(action => action.type === 'prev').map(e => 'right');
   const nextPanel$ = actions.filter(action => action.type === 'next').map(e => 'left');
@@ -71,11 +69,11 @@ function animationIntent(DOM: DOMSource, actions: Observable<Action>): Observabl
   const panelAnimation = Observable
     .merge(prePanel$, nextPanel$)
     .throttleTime(slideDuration)
-    .flatMap(name => {
+    .flatMap((name) => {
       return simpleAnimate(
         `${animationTypes.panel}-${name}`,
         DOM.select('.js-cal-body'),
-        `slide-${name}`
+        `slide-${name}`,
       );
     });
 
@@ -83,24 +81,27 @@ function animationIntent(DOM: DOMSource, actions: Observable<Action>): Observabl
     .merge(
       panelAnimation,
     )
-    .startWith({type: 'init', status: 'init', className: ''})
+    .startWith({ type: 'init', status: 'init', className: '' })
     .shareReplay(1);
 }
 
 /* model */
 function model(
-  props$: Observable<Props>,
-  actions$: Observable<Action>,
-): Observable<Model> {
+  props$: Observable<IProps>,
+  actions$: Observable<IAction>,
+): Observable<IModel> {
   const monthChange$ = Observable
     .merge(
       actions$.filter(action => action.type === 'prev').map(e => -1),
       actions$.filter(action => action.type === 'next').map(e => +1),
-      props$.distinctUntilChanged((x, y) => x.date === y.date).map(() => 0)
+      props$.distinctUntilChanged((x, y) => x.date === y.date).map(() => 0),
     )
-    .scan((acc, i) => {
-      return i === 0 ? 0 : acc + i;
-    }, 0)
+    .scan(
+      (acc, i) => {
+        return i === 0 ? 0 : acc + i;
+      },
+      0,
+    )
     .startWith(0)
     .shareReplay(1);
 
@@ -111,9 +112,9 @@ function model(
     )
     .map(([props, change]) => {
       return {
+        change,
         date: props.date,
-        change: change
-      }
+      };
     })
     .shareReplay(1);
 }
@@ -121,25 +122,37 @@ function model(
 /* view */
 function view(
   DOM: DOMSource,
-  model$: Observable<Model>,
+  model$: Observable<IModel>,
   animation$: Observable<Animation>,
   prevMonthBtnDOM: Observable<JSX.Element>,
   nextMonthBtnDOM: Observable<JSX.Element>,
 ) {
 
-  const daysList = (year:number, month:number, opts = {}) => {
+  const daysList = (year: number, month: number, opts = {}) => {
     return getPanelDays(year, month, opts)
-      .map(day => {
+      .map((day) => {
         if (day.cur) {
           return (
-            <li attrs-data-date={day.value} className="js-day cc-date-picker__day-btn selected">{day.label}</li>
-          )
+            <li
+              attrs-data-date={day.value}
+              className="js-day cc-date-picker__day-btn selected"
+            >
+              {day.label}
+            </li>
+          );
         } else if (day.label === '') {
-          return <li className="cc-date-picker__day-btn--hidden"></li>;
+          return <li className="cc-date-picker__day-btn--hidden"/>;
         } else {
-          return <li attrs-data-date={day.value} className="js-day cc-date-picker__day-btn">{day.label}</li>
+          return (
+            <li
+              attrs-data-date={day.value}
+              className="js-day cc-date-picker__day-btn"
+            >
+            {day.label}
+            </li>
+          );
         }
-      })
+      });
   };
 
   return Observable.combineLatest(
@@ -147,116 +160,89 @@ function view(
     prevMonthBtnDOM,
     nextMonthBtnDOM,
     animation$,
-  ).map(([model, preBtn, nextBtn, animation]) => {
+  ).map(([state, preBtn, nextBtn, animation]) => {
 
     const slideLeft = animation.type === 'panel-left' && animation.status === 'start';
     const slideRight =  animation.type === 'panel-right' && animation.status === 'start';
 
-    const animationClass = classNames({
+    const animationClass = classNamesFn({
       'cc-date-picker--slide-out-left': slideLeft,
       'cc-date-picker--slide-out-right': slideRight,
     });
-    const panelClass = classNames('js-cal-body', 'cc-date-picker__cal-body', animationClass);
-    const titleClass = classNames('cc-date-picker__cal-title', animationClass);
+    const panelClass = classNamesFn('js-cal-body', 'cc-date-picker__cal-body', animationClass);
+    const titleClass = classNamesFn('cc-date-picker__cal-title', animationClass);
 
-    const curYear = model.date.getFullYear();
-    let curMonth = model.date.getMonth() + model.change;
+    const curYear = state.date.getFullYear();
+    let curMonth = state.date.getMonth() + state.change;
 
     if (animation.status === 'start') {
-      curMonth--;
+      curMonth -= 1;
     }
+
+    const leftTitle = slideRight ? (
+        <span className="cc-date-picker__cal-title-absolute cc-date-picker--slide-in-left">
+          {getTitle(new Date(curYear, curMonth - 1))}
+        </span>
+      ) : '';
+    const rightTitle = slideLeft ? (
+        <span className="cc-date-picker__cal-title-absolute cc-date-picker--slide-in-right">
+          {getTitle(new Date(curYear, curMonth + 1))}
+        </span>
+      ) : '';
+
+    const leftPanel = slideRight ? (
+      <div className="cc-date-picker--slide-in-left cc-date-picker__absolute-panel">
+        {daysList(curYear, curMonth - 1, { current: state.date })}
+      </div>
+    ) : '';
+    const rightPanel = slideLeft ? (
+      <div className="cc-date-picker--slide-in-right cc-date-picker__absolute-panel">
+        {daysList(curYear, curMonth + 1, { current: state.date })}
+      </div>
+    ) : '';
 
     return (
       <div className="cc-date-picker__days-panel">
         <div className="cc-date-picker__cal-head">
-          <div className="js-pre-month cc-date-picker__btn">{ preBtn }</div>
+          <div className="js-pre-month cc-date-picker__btn">{preBtn}</div>
           <div className="cc-date-picker__cal-title-wrap">
-            {
-              slideRight ? (
-                <span className="cc-date-picker__cal-title-absolute cc-date-picker--slide-in-left">
-                  {getTitle(new Date(curYear, curMonth - 1))}
-                </span>
-              ) : ''
-            }
-            <span className={titleClass}>{ getTitle(new Date(curYear, curMonth)) }</span>
-            {
-              slideLeft ? (
-                <span className="cc-date-picker__cal-title-absolute cc-date-picker--slide-in-right">
-                  {getTitle(new Date(curYear, curMonth + 1))}
-                </span>
-              ) : ''
-            }
+            {leftTitle}
+            <span className={titleClass}>{getTitle(new Date(curYear, curMonth))}</span>
+            {rightTitle}
           </div>
-          <div className="js-next-month cc-date-picker__btn">{ nextBtn }</div>
+          <div className="js-next-month cc-date-picker__btn">{nextBtn}</div>
         </div>
         <div className="cc-date-picker__cal-body-wrap">
-          {
-            slideRight ? (
-              <div className="cc-date-picker--slide-in-left cc-date-picker__absolute-panel">
-                {
-                  daysList(
-                    curYear,
-                    curMonth - 1,
-                    {
-                      current: model.date
-                    }
-                  )
-                }
-              </div>
-            ) : ''
-          }
-          <div className={ panelClass }>
-            {
-              daysList(
-                curYear,
-                curMonth,
-                {
-                  current: model.date
-                }
-              )
-            }
+          {leftPanel}
+          <div className={panelClass}>
+            {daysList(curYear, curMonth, { current: state.date })}
           </div>
-          {
-            slideLeft ? (
-              <div className="cc-date-picker--slide-in-right cc-date-picker__absolute-panel">
-                {
-                  daysList(
-                    curYear,
-                    curMonth + 1,
-                    {
-                      current: model.date
-                    }
-                  )
-                }
-              </div>
-            ) : ''
-          }
+          {rightPanel}
         </div>
       </div>
-    )
+    );
   });
 }
 
-
-function main(sources: Sources): {DOM: Observable<JSX.Element>, actions$: Observable<Action>} {
+function main(sources: ISources): { DOM: Observable<JSX.Element>, actions$: Observable<IAction> } {
   const prevMonthBtn = Button({
     DOM: sources.DOM.select('.js-pre-month'),
     props$: Observable.of({
       icon: {
-        name: 'navigation.ic_chevron_left',
         fill: '#bababa',
-      }
-    })
+        name: 'navigation.ic_chevron_left',
+      },
+    }),
   });
 
   const nextMonthBtn = Button({
     DOM: sources.DOM.select('.js-next-month'),
     props$: Observable.of({
       icon: {
-        name: 'navigation.ic_chevron_right',
         fill: '#bababa',
-      }
-    })
+        name: 'navigation.ic_chevron_right',
+      },
+    }),
   });
 
   const actions$ = intent(sources.DOM, prevMonthBtn.actions$, nextMonthBtn.actions$);
@@ -266,11 +252,11 @@ function main(sources: Sources): {DOM: Observable<JSX.Element>, actions$: Observ
   const vdom$ = view(sources.DOM, model$, animations$, prevMonthBtn.DOM, nextMonthBtn.DOM);
 
   return {
+    actions$,
     DOM: vdom$,
-    actions$
-  }
+  };
 }
 
-export default function isolateDatePicker(sources: Sources, isolate: boolean = true): Sinks {
-  return isolate ? isolateFn(main)(sources) : main(sources)
+export default function isolateDatePicker(sources: ISources, isolate: boolean = true): ISinks {
+  return isolate ? isolateFn(main)(sources) : main(sources);
 }

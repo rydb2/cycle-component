@@ -1,43 +1,42 @@
-import { Observable } from 'rxjs'
-import isolateFn from '@cycle/isolate'
-import { DOMSource  } from '@cycle/dom/rxjs-typings'
-
+import { DOMSource } from '@cycle/dom/rxjs-typings';
+import { default as isolateFn } from '@cycle/isolate';
+import * as classNamesFn from 'classnames';
+import { Observable } from 'rxjs';
 const { html } = require('snabbdom-jsx');
-const classNames = require('classnames');
 
-import Icon, { Props as IconProps } from '../Icon/Icon'
 import {
-  DomComponentSinks,
-  Action,
-  DomComponentProps,
-  DomComponentSources } from '../helpers/domInterfaces'
-import { classNameWithSize } from '../helpers/tools'
-import './style.less'
+  IAction,
+  IDomComponentProps,
+  IDomComponentSinks,
+  IDomComponentSources } from '../helpers/domInterfaces';
+import { classNameWithSize } from '../helpers/tools';
+import Icon, { IProps as IconProps } from '../Icon/Icon';
+import './style.less';
 
 /* sources */
-export interface Props extends DomComponentProps {
+export interface IProps extends IDomComponentProps {
   label?: string;
   loading?: boolean;
   size?: string;
   type?: string;
   disabled?: boolean;
-  desc?:string;
+  desc?: string;
   primary?: boolean;
   secondary?: boolean;
 
   icon?: IconProps;
 }
 
-export interface Sources extends DomComponentSources {
-  props$: Observable<Props>;
+export interface ISources extends IDomComponentSources {
+  props$: Observable<IProps>;
 }
 
 /* sinks */
-export interface Sinks extends DomComponentSinks {
+export interface ISinks extends IDomComponentSinks {
 }
 
 /* model struct */
-export interface Model {
+export interface IModel {
   label?: string;
   loading?: boolean;
   size?: string;
@@ -52,87 +51,84 @@ export interface Model {
 }
 
 /* main */
-function intent(domSource: DOMSource): Observable<Action> {
+function intent(domSource: DOMSource): Observable<IAction> {
   return Observable.merge(
     domSource
       .select('button')
       .events('click')
-      .map(e => ({type: 'click', event: e})),
+      .map(event => ({ event, type: 'click' })),
     domSource
       .select('button')
       .events('hover')
-      .map(e => ({type: 'hover', event: e})),
-
-  )
+      .map(event => ({ event, type: 'hover' })),
+  );
 }
 
-function model(props$: Observable<Props>, actions$: Observable<Action>) : Observable<Model> {
-  return props$.map(props => {
+function model(props$: Observable<IProps>): Observable<IModel> {
+  return props$.map((props) => {
     return {
-      label: props.label,
-      loading: props.loading,
-      size: props.size,
-      type: props.type || 'flat',
+      classNames: props.classNames,
       desc: props.desc,
       disabled: props.disabled,
+      iconProps: props.icon,
+      label: props.label,
+      loading: props.loading,
       primary: props.primary,
       secondary: props.secondary,
-
-      classNames: props.classNames,
-      iconProps: props.icon
-    }
+      size: props.size,
+      type: props.type || 'flat',
+    };
   });
 }
 
-function view(sourceDOM: DOMSource, model$: Observable<Model>): Observable<JSX.Element> {
-  const iconDOM$ = model$.flatMap(({iconProps}) => {
+function view(sourceDOM: DOMSource, model$: Observable<IModel>): Observable<JSX.Element> {
+  const iconDOM$ = model$.flatMap(({ iconProps }) => {
     return iconProps && iconProps.name ? Icon({
       DOM: sourceDOM,
-      props$: Observable.of(iconProps)
+      props$: Observable.of(iconProps),
     }).DOM : Observable.of('');
   });
 
   return Observable.combineLatest(model$, iconDOM$)
-    .map(([model, iconTree]) => {
-      let mainClass = `cc-button__${model.type || 'flat'}`;
-      if (model.primary || model.secondary) {
-        mainClass += `--${(model.primary && 'primary') || (model.secondary && 'secondary')}`
+    .map(([state, iconTree]) => {
+      let mainClass = `cc-button__${state.type || 'flat'}`;
+      if (state.primary || state.secondary) {
+        mainClass += `--${(state.primary && 'primary') || (state.secondary && 'secondary')}`;
       }
-      const classes = classNames(
+      const classes = classNamesFn(
         {
-          [`${mainClass}--loading`]: model.loading,
-          [mainClass]: true
+          [`${mainClass}--loading`]: state.loading,
+          [mainClass]: true,
         },
-        classNameWithSize('cc-button', model.size),
-        model.classNames
+        classNameWithSize('cc-button', state.size),
+        state.classNames,
       );
-      const content = model.label ? (
+      const content = state.label ? (
         <label className="cc-button__content">
-          <span className="cc-button__title">{ model.label }</span>
-          <span className="cc-button__desc">{ model.desc || '' }</span>
+          <span className="cc-button__title">{state.label}</span>
+          <span className="cc-button__desc">{state.desc || ''}</span>
         </label>
       ) : '';
       return (
-        <button className={ classes } disabled={ model.disabled }>
-          { iconTree }
-          { content }
+        <button className={classes} disabled={state.disabled}>
+          {iconTree}
+          {content}
         </button>
-      )
-    })
+      );
+    });
 }
 
-function main(sources: Sources): Sinks {
+function main(sources: ISources): ISinks {
   const actions$ = intent(sources.DOM);
-  const state$ = model(sources.props$, actions$);
+  const state$ = model(sources.props$);
   const vdom$ = view(sources.DOM, state$);
 
   return {
     DOM: vdom$,
-    actions$
-  }
+    actions$,
+  };
 }
 
-export default function isolateButton(sources: Sources, isolate: boolean = true): Sinks {
-  return isolate ? isolateFn(main)(sources) : main(sources)
+export default function isolateButton(sources: ISources, isolate: boolean = true): ISinks {
+  return isolate ? isolateFn(main)(sources) : main(sources);
 }
-

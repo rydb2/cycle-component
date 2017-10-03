@@ -1,45 +1,45 @@
-function getPreMonthObj(year:number, month:number) {
+function getPreMonthObj(year: number, month: number) {
   return {
+    end: new Date(year, month, 0),
     start: new Date(year, month - 1, 1),
-    end: new Date(year, month, 0)
-  }
-};
+  };
+}
 
 export function getPanelDays(
-  year:number,
-  month:number,
+  year: number,
+  month: number,
   opts: {
-    current?: Date
-  } = {}
-): {label:string, value:string, cur?: boolean}[] {
+    current?: Date,
+  } = {},
+): { label: string, value: string, cur?: boolean }[] {
   // month start with 0
   // days start with 1
   let r = [];
-  let preMonthObj = getPreMonthObj(year, month);
-  let curMonthObj = {
+  const preMonthObj = getPreMonthObj(year, month);
+  const curMonthObj = {
+    end: new Date(year, month, 0),
     start: new Date(year, month, 1),
-    end: new Date(year, month, 0)
   };
+  const preMonthDays = preMonthObj.end.getDate();
 
-  let preMonthDays = preMonthObj.end.getDate();
   for (let i = 0; i < curMonthObj.start.getDay(); i++) {
     r.unshift({
       label: '',
-      value: `${year}/${month - 2}/${preMonthDays - i - 1}`
+      value: `${year}/${month - 2}/${preMonthDays - i - 1}`,
     });
   }
-  for (let i = 1; i <= curMonthObj.end.getDate(); i++) {
+  for (let i = 1; i <= curMonthObj.end.getDate(); i += 1) {
     if (opts.current &&
         opts.current.setHours(0, 0, 0, 0) === new Date(year, month, i).getTime()) {
       r.push({
+        cur: true,
         label: i + '',
         value: `${year}/${month}/${i}`,
-        cur: true
       });
     } else {
       r.push({
         label: i + '',
-        value: `${year}/${month}/${i}`
+        value: `${year}/${month}/${i}`,
       });
     }
   }
@@ -50,8 +50,8 @@ export function getTitle(date: Date): string {
   return getMonthName(date.getMonth()) + ' ' + date.getFullYear();
 }
 
-export function getMonthName(i:number):string {
-  let names = [
+export function getMonthName(i: number): string {
+  const names = [
     'January',
     'February',
     'March',
@@ -68,7 +68,7 @@ export function getMonthName(i:number):string {
   return names[i];
 }
 
-export function getWeekdayName(i:number):string {
+export function getWeekdayName(i: number): string {
   let days = [
     'Sunday',
     'Monday',
@@ -76,7 +76,8 @@ export function getWeekdayName(i:number):string {
     'Wednesday',
     'Thursday',
     'Friday',
-    'Saturday'
+    'Saturday',
   ];
   return days[i];
 }
+
