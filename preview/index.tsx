@@ -45,14 +45,18 @@ function view(DOM, history$) {
     } else if (pathname === '/date-picker') {
       page = DatePicker({ DOM });
     } else {
-      page = { DOM: Observable.of(<h1 style="text-align: 'center'">Welcome Cycle Component</h1>) };
+      const style = {
+        textAlign: 'center',
+        marginTop: '20px',
+      };
+      page = { DOM: Observable.of(<h1 style={style}>Welcome Cycle Component</h1>) };
     }
 
     return page.DOM.map((domTree) => {
       return (
         <div className="main">
           {nav}
-          <div>{domTree}</div>
+          <div style={{flex: 1}}>{domTree}</div>
         </div>
       );
     });
