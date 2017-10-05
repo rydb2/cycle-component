@@ -31,6 +31,14 @@ export default function main(sources: Sources): Sinks {
     }),
   });
 
+  const checkboxDisabled = Checkbox({
+    DOM: sources.DOM,
+    props$: Observable.of({
+      disabled: true,
+      label: 'checkbox',
+    }),
+  });
+
   const checkboxIndeterminate = Checkbox({
     DOM: sources.DOM,
     props$: Observable.of({
@@ -40,11 +48,16 @@ export default function main(sources: Sources): Sinks {
   });
 
   const vdom$ = Observable
-    .combineLatest(checkbox.DOM, checkboxIndeterminate.DOM)
-    .map(([checkboxTree, checkboxTreeIndeterminate]) => {
+    .combineLatest(
+      checkbox.DOM,
+      checkboxIndeterminate.DOM,
+      checkboxDisabled.DOM,
+    )
+    .map(([checkboxTree, checkboxTreeIndeterminate, checkboxDisabled]) => {
       return (
         <div>
           {checkboxTree}
+          {checkboxDisabled}
           {checkboxTreeIndeterminate}
         </div>
       );

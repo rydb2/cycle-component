@@ -1,0 +1,28 @@
+@import '../styles/variables';
+
+.cc-checkbox {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+
+  &__label {
+    line-height: 24px;
+  }
+
+  &__icon {
+    fill: @color-primary;
+  }
+
+  /* disabled style */
+  &--disabled {
+    cursor: not-allowed;
+  }
+
+  &__icon--disabled {
+    fill: @color-disabled;
+  }
+
+  &__label--disabled {
+    color: @color-disabled;
+  }
+}

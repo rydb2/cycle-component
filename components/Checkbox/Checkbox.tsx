@@ -14,6 +14,7 @@ import Icon from '../Icon/Icon';
 import './style.less';
 
 export interface IProps extends IInputDomComponentProps {
+  disabled?: boolean;
   selected?: boolean;
   label?: string;
   indeterminate?: boolean;
@@ -25,6 +26,7 @@ export interface ISources {
 }
 
 export interface IModel {
+  disabled?: boolean;
   indeterminate?: boolean;
   label?: string;
   selected?: boolean;
@@ -49,16 +51,12 @@ function model(props$: Observable<IProps>, action$: Observable<IAction>): Observ
         .filter(e => e.type === 'select')
         .scan(
           (selected, event) => {
-            return !selected;
+            return props.disabled ? selected : !selected;
           },
           props.selected,
         )
         .startWith(props.selected);
     });
-
-  selected$.map(e => {
-    console.log('selected: ', e)
-  });
 
   return Observable.combineLatest(
     props$,
@@ -66,6 +64,7 @@ function model(props$: Observable<IProps>, action$: Observable<IAction>): Observ
   ).map(([props, selected]) => {
     return {
       selected,
+      disabled: props.disabled,
       indeterminate: props.indeterminate,
       label: props.label,
     };
@@ -74,11 +73,14 @@ function model(props$: Observable<IProps>, action$: Observable<IAction>): Observ
 
 function iconView(DOM: DOMSource, state$: Observable<IModel>) {
   return state$.flatMap((state) => {
+    const classNames = [
+      state.disabled ? 'cc-checkbox__icon--disabled' : 'cc-checkbox__icon',
+    ];
     if (state.selected && !state.indeterminate) {
       return Icon({
         DOM,
         props$: Observable.of({
-          classNames: ['selected'],
+          classNames,
           name: 'toggle.ic_check_box',
         }),
       }).DOM;
@@ -86,7 +88,7 @@ function iconView(DOM: DOMSource, state$: Observable<IModel>) {
       return Icon({
         DOM,
         props$: Observable.of({
-          classNames: ['indeterminate'],
+          classNames,
           name: 'toggle.ic_indeterminate_check_box',
         }),
       }).DOM;
@@ -94,6 +96,7 @@ function iconView(DOM: DOMSource, state$: Observable<IModel>) {
       return Icon({
         DOM,
         props$: Observable.of({
+          classNames,
           name: 'toggle.ic_check_box_outline_blank',
         }),
       }).DOM;
@@ -110,10 +113,21 @@ function view(
     state$,
     iconDOM$,
   ).map(([state, iconTree]) => {
+    const classNames = classNamesFn({
+      'cc-checkbox': true,
+      'cc-checkbox--disabled': state.disabled,
+      'js-item': true,
+    });
+
+    const labelClassNames = classNamesFn({
+      'cc-checkbox__label': !state.disabled,
+      'cc-checkbox__label--disabled': state.disabled,
+    });
+
     return (
-      <div className="cc-checkbox js-item">
+      <div className={classNames}>
         {iconTree}
-        {state.label ? (<span className="label">{state.label}</span>) : ''}
+        {state.label ? (<span className={labelClassNames}>{state.label}</span>) : ''}
       </div>
     );
   });
