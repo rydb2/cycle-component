@@ -84,8 +84,8 @@ function main(sources: ISources): ISinks {
 
   return {
     actions$,
-    value: state$.map(state => state.value),
     DOM: vdom$,
+    value: state$.map(state => state.value),
   };
 }
 

@@ -26,6 +26,7 @@
     "node_modules"
   ],
   "awesomeTypescriptLoaderOptions": {
+    "sourceMap": true,
     "useBabel": true,
     "reportFiles": [
         "./components/**/*.{ts,tsx}"

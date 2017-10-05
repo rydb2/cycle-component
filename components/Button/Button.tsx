@@ -81,15 +81,15 @@ function model(props$: Observable<IProps>): Observable<IModel> {
   });
 }
 
-function view(sourceDOM: DOMSource, model$: Observable<IModel>): Observable<JSX.Element> {
-  const iconDOM$ = model$.flatMap(({ iconProps }) => {
+function view(sourceDOM: DOMSource, state$: Observable<IModel>): Observable<JSX.Element> {
+  const iconDOM$ = state$.flatMap(({ iconProps }) => {
     return iconProps && iconProps.name ? Icon({
       DOM: sourceDOM,
       props$: Observable.of(iconProps),
     }).DOM : Observable.of('');
   });
 
-  return Observable.combineLatest(model$, iconDOM$)
+  return Observable.combineLatest(state$, iconDOM$)
     .map(([state, iconTree]) => {
       let mainClass = `cc-button__${state.type || 'flat'}`;
       if (state.primary || state.secondary) {

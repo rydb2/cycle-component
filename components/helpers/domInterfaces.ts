@@ -42,5 +42,5 @@ export interface IDomComponentProps {
 }
 
 export interface IInputDomComponentProps extends IDomComponentProps {
-  value?: number | string | object;
+  value?: number | string | object | boolean;
 }

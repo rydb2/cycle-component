@@ -1,4 +1,5 @@
 import { DOMSource  } from '@cycle/dom/rxjs-typings';
+import { default as isolateFn } from '@cycle/isolate';
 import * as classNamesFn from 'classnames';
 import { Observable } from 'rxjs';
 const { html } = require('snabbdom-jsx');
@@ -24,17 +25,17 @@ export interface ISinks {
   DOM: Observable<JSX.Element | string>;
 }
 
-export default function(sources: ISources): ISinks {
+function main(sources: ISources): ISinks {
   const vdom$ = sources.props$.map((props) => {
     const [type, name] = props.name.split('.');
     if (type && name) {
-      let className = classNameWithSize('cc-icon', props.size);
+      let classNames = classNameWithSize('cc-icon', props.size);
       if (props.classNames && props.classNames.length > 0) {
-        className += ` ${props.classNames.join(' ')}`;
+        classNames += ` ${props.classNames.join(' ')}`;
       }
 
       const svgTag = `
-        <svg class="${className}" fill="${props.color || ''}">
+        <svg class="${classNames}" fill="${props.color || ''}">
             <use xlink:href='material-icons-sprite.svg#svg-sprite-${type}-symbol_${name}_24px'/>
         </svg>`;
       return <i innerHTML={svgTag}></i>;
@@ -44,4 +45,8 @@ export default function(sources: ISources): ISinks {
   return {
     DOM: vdom$,
   };
+}
+
+export default function (sources: ISources, isolate: boolean = true): ISinks {
+  return isolate ? isolateFn(main)(sources) : main(sources);
 }

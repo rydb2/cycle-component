@@ -5,15 +5,21 @@ import * as classNamesFn from 'classnames';
 import { Observable } from 'rxjs';
 
 import Button from './Button';
-import Input from './Input';
+import Checkbox from './Checkbox';
 import DatePicker from './DatePicker';
+import Input from './Input';
 
 import './styles/index.less';
 
 const { html } = require('snabbdom-jsx');
 
 function navigation(pathname) {
-  const links = ['button', 'input', 'date-picker'];
+  const links = [
+    'button',
+    'input',
+    'date-picker',
+    'checkbox',
+  ];
   const linkDom = (name) => {
     const classNames = classNamesFn({ active: pathname === name }, 'link');
     return (
@@ -44,6 +50,8 @@ function view(DOM, history$) {
       page = Input({ DOM });
     } else if (pathname === '/date-picker') {
       page = DatePicker({ DOM });
+    } else if (pathname === '/checkbox') {
+      page = Checkbox({ DOM });
     } else {
       const style = {
         textAlign: 'center',
