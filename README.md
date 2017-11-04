@@ -1,7 +1,5 @@
-## simple easy create component
-
-## About icons
-use **material design svg sprite symbol**[Link](https://material.io/icons/)
+### About icons
+use **material design svg sprite symbol  [Link](https://material.io/icons/)
 ```js
 // example
 Icon({
@@ -12,4 +10,7 @@ Icon({
 })
 ```
 
-## Loading animation use spinkit
+### Loading animation use spinkit
+
+### preview
+https://rawgit.com/rydb2/cycle-component/pre_v1/preview/index.html#/date-picker
