@@ -15,11 +15,11 @@ module.exports = (env) => {
     target: 'web',
     entry: {
       [fileName]: [
-        path.resolve(__dirname, '../preview/', fileName),
+        path.resolve(__dirname, '../test/', fileName),
       ],
     },
     output: {
-      path: path.resolve(__dirname, '../test/'),
+      path: path.resolve(__dirname, '../preview/'),
       filename: 'scripts/[name].js',
     },
     module: {
@@ -92,7 +92,7 @@ module.exports = (env) => {
     resolve: {
       modules: [
         path.resolve(__dirname, '../components/'),
-        path.resolve(__dirname, '../preview/'),
+        path.resolve(__dirname, '../test/'),
         '../node_modules/',
       ],
       extensions: ['.tsx', '.ts', '.js'],
