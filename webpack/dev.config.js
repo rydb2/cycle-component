@@ -19,7 +19,7 @@ module.exports = (env) => {
       ],
     },
     output: {
-      path: path.resolve(__dirname, '../dev/'),
+      path: path.resolve(__dirname, '../test/'),
       filename: 'scripts/[name].js',
     },
     module: {
